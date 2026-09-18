@@ -1,0 +1,23 @@
+# syntax=docker/dockerfile:1
+# DPOST background worker. The build bundles all code into one file, so the
+# runtime image contains only Node and dist/.
+# Build from the repo root: docker build -f Dockerfile.worker -t dpost-worker .
+
+FROM node:24-slim AS base
+ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
+RUN corepack enable
+WORKDIR /repo
+
+FROM base AS build
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm fetch
+COPY . .
+RUN pnpm install --offline --frozen-lockfile
+RUN pnpm --filter @dpost/worker build
+
+FROM node:24-slim AS runtime
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=build --chown=node:node /repo/apps/worker/dist ./dist
+USER node
+CMD ["node", "--enable-source-maps", "dist/index.js"]

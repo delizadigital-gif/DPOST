@@ -1,0 +1,26 @@
+node_modules/
+.pnpm-store/
+dist/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Env: never commit real secrets. .env.example is the template.
+.env
+.env.*
+!.env.example
+
+.DS_Store
+*.log
+*.pem
+
+# Prisma client (regenerated on install)
+packages/db/src/generated/

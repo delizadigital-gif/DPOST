@@ -1,0 +1,853 @@
+// DPOST database schema. Design notes: docs/03-database-schema.md
+//
+// Conventions:
+// - Every tenant-owned table has `workspaceId`. The tenant guard in
+//   src/tenant.ts refuses queries on those tables without it.
+// - IDs are UUIDv7 (time-ordered, not guessable). Better Auth tables keep
+//   string IDs because Better Auth generates them.
+// - All timestamps are timestamptz, stored in UTC. Display uses the
+//   workspace timezone.
+// - Tables use snake_case plural names (@@map); columns keep Prisma's camelCase.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────── Identity (Better Auth tables, Phase 3) ─────────────────────────
+
+model User {
+  id            String       @id
+  name          String
+  email         String       @unique
+  emailVerified Boolean      @default(false)
+  image         String?
+  locale        String       @default("en")
+  platformRole  PlatformRole @default(user)
+  createdAt     DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime     @updatedAt @db.Timestamptz(3)
+
+  sessions      Session[]
+  accounts      Account[]
+  memberships   WorkspaceMember[]
+  notifications Notification[]
+  conversations AIConversation[]
+
+  @@map("users")
+}
+
+enum PlatformRole {
+  user
+  admin
+}
+
+model Session {
+  id                String   @id
+  userId            String
+  token             String   @unique
+  expiresAt         DateTime @db.Timestamptz(3)
+  ipAddress         String?
+  userAgent         String?
+  activeWorkspaceId String?
+  createdAt         DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt         DateTime @updatedAt @db.Timestamptz(3)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+/// Login methods for a user: password hash ("credential") or OAuth (Google).
+/// Social *publishing* connections are separate: see SocialAccount.
+model Account {
+  id                    String    @id
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(3)
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("auth_accounts")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([identifier])
+  @@map("verifications")
+}
+
+// ───────────────────────── Tenancy ─────────────────────────
+
+model Workspace {
+  id        String   @id @default(uuid(7))
+  name      String
+  slug      String   @unique
+  timezone  String   @default("Asia/Dhaka")
+  locale    String   @default("en")
+  country   String   @default("BD")
+  /// AI and notification defaults, validated with zod in the workspace service.
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  members         WorkspaceMember[]
+  socialAccounts  SocialAccount[]
+  channels        SocialChannel[]
+  importedPosts   ImportedPost[]
+  brandProfile    BrandProfile?
+  brandMemories   BrandMemory[]
+  plans           ContentPlan[]
+  posts           ContentPost[]
+  postRevisions   PostRevision[]
+  postMedia       PostMedia[]
+  publications    Publication[]
+  publishAttempts PublishAttempt[]
+  media           MediaAsset[]
+  conversations   AIConversation[]
+  messages        AIMessage[]
+  toolCalls       AIToolCall[]
+  usageEvents     AIUsageEvent[]
+  tasks           AsyncTask[]
+  postMetrics     PostMetricSnapshot[]
+  channelMetrics  ChannelMetricDaily[]
+  notifications   Notification[]
+  subscription    Subscription?
+  usageCounters   UsageCounter[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String        @id @default(uuid(7))
+  workspaceId String
+  userId      String
+  role        WorkspaceRole @default(owner)
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@map("workspace_members")
+}
+
+enum WorkspaceRole {
+  owner
+  admin
+  editor
+  viewer
+}
+
+// ───────────────────────── Social ─────────────────────────
+
+/// One OAuth connection to a platform (e.g. a Facebook user). Tokens are
+/// AES-256-GCM encrypted; see packages/core/src/lib/crypto.ts.
+model SocialAccount {
+  id              String           @id @default(uuid(7))
+  workspaceId     String
+  platform        SocialPlatform
+  externalUserId  String
+  displayName     String?
+  tokenCiphertext String
+  tokenIv         String
+  tokenTag        String
+  tokenKeyVersion Int
+  tokenExpiresAt  DateTime?        @db.Timestamptz(3)
+  scopes          String[]
+  status          ConnectionStatus @default(active)
+  lastCheckedAt   DateTime?        @db.Timestamptz(3)
+  connectedById   String
+  createdAt       DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime         @updatedAt @db.Timestamptz(3)
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  channels        SocialChannel[]
+
+  @@unique([workspaceId, platform, externalUserId])
+  @@map("social_accounts")
+}
+
+/// A publishable destination: a Facebook Page (later an Instagram account...).
+model SocialChannel {
+  id              String               @id @default(uuid(7))
+  workspaceId     String
+  socialAccountId String
+  platform        SocialPlatform
+  kind            ChannelKind
+  externalId      String
+  name            String
+  username        String?
+  avatarUrl       String?
+  category        String?
+  tokenCiphertext String?
+  tokenIv         String?
+  tokenTag        String?
+  tokenKeyVersion Int?
+  status          ConnectionStatus     @default(active)
+  isActive        Boolean              @default(true)
+  lastSyncedAt    DateTime?            @db.Timestamptz(3)
+  /// Public metadata as returned by the platform (follower count, about...).
+  meta            Json                 @default("{}")
+  createdAt       DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt       DateTime             @updatedAt @db.Timestamptz(3)
+  workspace       Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  socialAccount   SocialAccount        @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  publications    Publication[]
+  importedPosts   ImportedPost[]
+  dailyMetrics    ChannelMetricDaily[]
+
+  @@unique([workspaceId, platform, externalId])
+  @@index([workspaceId, status])
+  @@map("social_channels")
+}
+
+enum SocialPlatform {
+  facebook
+  instagram
+  linkedin
+  tiktok
+  youtube
+  x
+  threads
+  pinterest
+}
+
+enum ChannelKind {
+  facebook_page
+  instagram_business
+}
+
+enum ConnectionStatus {
+  active
+  needs_reconnect
+  revoked
+  error
+}
+
+/// Existing Page posts pulled from the platform for brand analysis.
+model ImportedPost {
+  id             String        @id @default(uuid(7))
+  workspaceId    String
+  channelId      String
+  externalId     String
+  message        String?
+  mediaType      String?
+  permalink      String?
+  postedAt       DateTime      @db.Timestamptz(3)
+  metrics        Json          @default("{}")
+  /// AI classification: contentType, pillar, tone, isPromotional...
+  classification Json?
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  channel        SocialChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, externalId])
+  @@index([workspaceId, postedAt])
+  @@map("imported_posts")
+}
+
+// ───────────────────────── Brand / AI memory ─────────────────────────
+
+model BrandProfile {
+  id          String    @id @default(uuid(7))
+  workspaceId String    @unique
+  /// Each section is zod-validated JSON with per-field provenance:
+  /// { value, source: 'user' | 'onboarding' | 'analysis', updatedAt }
+  business    Json      @default("{}")
+  offerings   Json      @default("{}")
+  audience    Json      @default("{}")
+  voice       Json      @default("{}")
+  contentMix  Json      @default("{}")
+  preferences Json      @default("{}")
+  analysis    Json?
+  /// Bumped on every change; used as the prompt cache key.
+  version     Int       @default(1)
+  updatedAt   DateTime  @updatedAt @db.Timestamptz(3)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("brand_profiles")
+}
+
+/// Durable "remember that..." preferences.
+model BrandMemory {
+  id          String         @id @default(uuid(7))
+  workspaceId String
+  content     String
+  category    MemoryCategory
+  source      MemorySource
+  createdById String?
+  createdAt   DateTime       @default(now()) @db.Timestamptz(3)
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@map("brand_memories")
+}
+
+enum MemoryCategory {
+  voice
+  audience
+  product
+  policy
+  schedule
+  other
+}
+
+enum MemorySource {
+  chat
+  settings
+  analysis
+}
+
+// ───────────────────────── Content ─────────────────────────
+
+model ContentPlan {
+  id          String        @id @default(uuid(7))
+  workspaceId String
+  title       String
+  /// The user's original request, verbatim.
+  brief       String
+  /// { startDate, endDate, postsPerDay, channels, language, types, campaign... }
+  params      Json
+  /// Stage A output: pillars, weights, themes, campaign arc.
+  strategy    Json?
+  status      PlanStatus    @default(draft)
+  createdById String
+  createdAt   DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime      @updatedAt @db.Timestamptz(3)
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  posts       ContentPost[]
+
+  @@index([workspaceId, createdAt])
+  @@map("content_plans")
+}
+
+enum PlanStatus {
+  draft
+  strategy_ready
+  generating
+  generated
+  partially_generated
+  failed
+  cancelled
+}
+
+/// Editorial state lives here; delivery state lives on Publication.
+model ContentPost {
+  id           String          @id @default(uuid(7))
+  workspaceId  String
+  planId       String?
+  title        String?
+  body         String
+  hashtags     String[]
+  cta          String?
+  link         String?
+  language     ContentLanguage @default(en)
+  contentType  ContentType?
+  pillar       String?
+  status       PostStatus      @default(draft)
+  source       PostSource      @default(manual)
+  /// Plan slot time, before a publication exists.
+  plannedFor   DateTime?       @db.Timestamptz(3)
+  /// Model, prompt version, brief used, quality flags.
+  aiMeta       Json?
+  createdById  String
+  approvedById String?
+  approvedAt   DateTime?       @db.Timestamptz(3)
+  deletedAt    DateTime?       @db.Timestamptz(3)
+  createdAt    DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime        @updatedAt @db.Timestamptz(3)
+  workspace    Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan         ContentPlan?    @relation(fields: [planId], references: [id], onDelete: SetNull)
+  media        PostMedia[]
+  revisions    PostRevision[]
+  publications Publication[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, plannedFor])
+  @@index([planId])
+  @@map("content_posts")
+}
+
+enum PostStatus {
+  draft
+  ai_generated
+  pending_review
+  approved
+  archived
+}
+
+enum PostSource {
+  manual
+  ai_single
+  ai_plan
+  ai_chat
+}
+
+enum ContentLanguage {
+  en
+  bn
+  banglish
+  mixed
+}
+
+enum ContentType {
+  promotional
+  educational
+  inspirational
+  engagement
+  product_showcase
+  announcement
+  storytelling
+  tips
+  offer
+  question
+  behind_the_scenes
+  testimonial
+}
+
+/// Snapshot taken before every edit or AI regeneration: powers undo and
+/// version history. `variant` rows are alternative versions.
+model PostRevision {
+  id          String       @id @default(uuid(7))
+  workspaceId String
+  postId      String
+  kind        RevisionKind
+  body        String
+  hashtags    String[]
+  cta         String?
+  instruction String?
+  createdById String?
+  createdAt   DateTime     @default(now()) @db.Timestamptz(3)
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  post        ContentPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@map("post_revisions")
+}
+
+enum RevisionKind {
+  edit
+  regenerate
+  variant
+}
+
+model PostMedia {
+  workspaceId String
+  postId      String
+  mediaId     String
+  position    Int         @default(0)
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  post        ContentPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  media       MediaAsset  @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
+  @@id([postId, mediaId])
+  @@index([mediaId])
+  @@map("post_media")
+}
+
+// ───────────────────────── Scheduling & publishing ─────────────────────────
+
+/// "Publish post X to channel Y at time T", and the outcome.
+model Publication {
+  id             String               @id @default(uuid(7))
+  workspaceId    String
+  postId         String
+  channelId      String
+  scheduledAt    DateTime             @db.Timestamptz(3)
+  status         PublicationStatus    @default(scheduled)
+  /// Bumped on reschedule so the queue job ID changes.
+  jobVersion     Int                  @default(1)
+  externalPostId String?
+  externalUrl    String?
+  publishedAt    DateTime?            @db.Timestamptz(3)
+  /// Normalized: AUTH | RATE_LIMITED | CONTENT_REJECTED | TRANSIENT...
+  failureCode    String?
+  /// User-safe explanation.
+  failureMessage String?
+  attemptCount   Int                  @default(0)
+  createdAt      DateTime             @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime             @updatedAt @db.Timestamptz(3)
+  workspace      Workspace            @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  post           ContentPost          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  channel        SocialChannel        @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  attempts       PublishAttempt[]
+  metrics        PostMetricSnapshot[]
+
+  @@unique([postId, channelId])
+  @@index([status, scheduledAt])
+  @@index([workspaceId, scheduledAt])
+  @@map("publications")
+}
+
+enum PublicationStatus {
+  scheduled
+  publishing
+  published
+  failed
+  cancelled
+}
+
+model PublishAttempt {
+  id            String      @id @default(uuid(7))
+  workspaceId   String
+  publicationId String
+  attempt       Int
+  startedAt     DateTime    @default(now()) @db.Timestamptz(3)
+  finishedAt    DateTime?   @db.Timestamptz(3)
+  ok            Boolean     @default(false)
+  /// TRANSIENT | RATE_LIMITED | AUTH | PERMANENT
+  errorClass    String?
+  errorCode     String?
+  /// Sanitized. Never tokens.
+  errorDetail   String?
+  workspace     Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([publicationId])
+  @@map("publish_attempts")
+}
+
+// ───────────────────────── Media ─────────────────────────
+
+model MediaAsset {
+  id          String      @id @default(uuid(7))
+  workspaceId String
+  source      MediaSource
+  status      MediaStatus @default(processing)
+  kind        MediaKind   @default(image)
+  storageKey  String?
+  thumbKey    String?
+  mimeType    String?
+  width       Int?
+  height      Int?
+  bytes       Int?
+  filename    String?
+  altText     String?
+  tags        String[]
+  prompt      String?
+  provider    String?
+  createdById String?
+  deletedAt   DateTime?   @db.Timestamptz(3)
+  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  posts       PostMedia[]
+
+  @@index([workspaceId, createdAt])
+  @@index([workspaceId, source])
+  @@map("media_assets")
+}
+
+enum MediaSource {
+  upload
+  ai
+  brand_asset
+  imported
+}
+
+enum MediaStatus {
+  processing
+  ready
+  failed
+}
+
+enum MediaKind {
+  image
+  video
+}
+
+// ───────────────────────── AI assistant ─────────────────────────
+
+model AIConversation {
+  id          String      @id @default(uuid(7))
+  workspaceId String
+  userId      String
+  title       String?
+  /// Rolling summary for long threads.
+  summary     String?
+  createdAt   DateTime    @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime    @updatedAt @db.Timestamptz(3)
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    AIMessage[]
+
+  @@index([workspaceId, userId, updatedAt])
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id             String         @id @default(uuid(7))
+  workspaceId    String
+  conversationId String
+  role           MessageRole
+  /// [{ type: 'text' }, { type: 'tool_call' }, { type: 'ui_card' }...]
+  parts          Json
+  tokensIn       Int?
+  tokensOut      Int?
+  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  conversation   AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  toolCalls      AIToolCall[]
+
+  @@index([conversationId, createdAt])
+  @@map("ai_messages")
+}
+
+enum MessageRole {
+  user
+  assistant
+  tool
+  system
+}
+
+model AIToolCall {
+  id             String         @id @default(uuid(7))
+  workspaceId    String
+  messageId      String
+  userId         String
+  toolName       String
+  input          Json
+  output         Json?
+  status         ToolCallStatus
+  risk           ToolRisk
+  /// Nonce embedded in the signed confirmation token (single use).
+  confirmationId String?        @unique
+  confirmedAt    DateTime?      @db.Timestamptz(3)
+  durationMs     Int?
+  error          String?
+  createdAt      DateTime       @default(now()) @db.Timestamptz(3)
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  message        AIMessage      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@map("ai_tool_calls")
+}
+
+enum ToolCallStatus {
+  pending
+  awaiting_confirmation
+  confirmed
+  rejected
+  succeeded
+  failed
+  expired
+}
+
+enum ToolRisk {
+  read
+  write
+  bulk
+  destructive
+  external
+}
+
+/// Cost ledger: one row per LLM or image call.
+model AIUsageEvent {
+  id           String    @id @default(uuid(7))
+  workspaceId  String
+  userId       String?
+  feature      String
+  provider     String
+  model        String
+  inputTokens  Int       @default(0)
+  outputTokens Int       @default(0)
+  images       Int       @default(0)
+  /// Estimated cost in USD micro-units.
+  costMicros   BigInt    @default(0)
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, createdAt])
+  @@index([createdAt])
+  @@map("ai_usage_events")
+}
+
+// ───────────────────────── Background tasks ─────────────────────────
+
+/// User-visible progress of long-running work (plan generation, analysis).
+model AsyncTask {
+  id          String     @id @default(uuid(7))
+  workspaceId String
+  type        String
+  status      TaskStatus @default(queued)
+  progress    Int        @default(0)
+  total       Int?
+  refType     String?
+  refId       String?
+  result      Json?
+  /// User-safe message.
+  error       String?
+  createdById String?
+  createdAt   DateTime   @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime   @updatedAt @db.Timestamptz(3)
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, status])
+  @@map("async_tasks")
+}
+
+enum TaskStatus {
+  queued
+  running
+  succeeded
+  partially_succeeded
+  failed
+  cancelled
+}
+
+// ───────────────────────── Analytics ─────────────────────────
+
+model PostMetricSnapshot {
+  id            String      @id @default(uuid(7))
+  workspaceId   String
+  publicationId String
+  capturedAt    DateTime    @default(now()) @db.Timestamptz(3)
+  /// Normalized keys (reactions, comments, shares, reach...) plus `raw`.
+  /// A missing key means the platform didn't return it.
+  metrics       Json
+  workspace     Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([publicationId, capturedAt])
+  @@index([workspaceId, capturedAt])
+  @@map("post_metric_snapshots")
+}
+
+model ChannelMetricDaily {
+  id          String        @id @default(uuid(7))
+  workspaceId String
+  channelId   String
+  date        DateTime      @db.Date
+  metrics     Json
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  channel     SocialChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, date])
+  @@map("channel_metrics_daily")
+}
+
+// ───────────────────────── Notifications ─────────────────────────
+
+model Notification {
+  id          String    @id @default(uuid(7))
+  workspaceId String
+  userId      String
+  type        String
+  title       String
+  body        String?
+  /// Deep link inside the app.
+  href        String?
+  readAt      DateTime? @db.Timestamptz(3)
+  emailedAt   DateTime? @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@map("notifications")
+}
+
+// ───────────────────────── Billing ─────────────────────────
+
+/// Plan catalogue (global, seeded). Limits change without a deploy.
+model Plan {
+  /// 'free' | 'starter' | 'business' | 'agency'
+  id            String         @id
+  name          String
+  /// { aiPosts, aiImages, scheduledPosts, channels, members, workspaces }
+  limits        Json
+  features      Json           @default("{}")
+  /// [{ currency: 'BDT', interval: 'month', amountMinor: 99900 }]
+  prices        Json           @default("[]")
+  isPublic      Boolean        @default(true)
+  sortOrder     Int            @default(0)
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                 String             @id @default(uuid(7))
+  workspaceId        String             @unique
+  planId             String
+  status             SubscriptionStatus @default(active)
+  /// manual | sslcommerz | stripe
+  provider           String             @default("manual")
+  providerRef        String?
+  currentPeriodStart DateTime           @db.Timestamptz(3)
+  currentPeriodEnd   DateTime           @db.Timestamptz(3)
+  cancelAt           DateTime?          @db.Timestamptz(3)
+  createdAt          DateTime           @default(now()) @db.Timestamptz(3)
+  updatedAt          DateTime           @updatedAt @db.Timestamptz(3)
+  workspace          Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  plan               Plan               @relation(fields: [planId], references: [id])
+
+  @@map("subscriptions")
+}
+
+enum SubscriptionStatus {
+  trialing
+  active
+  past_due
+  canceled
+}
+
+model UsageCounter {
+  workspaceId String
+  /// ai_posts | ai_images | scheduled_posts
+  metric      String
+  periodStart DateTime  @db.Date
+  count       Int       @default(0)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@id([workspaceId, metric, periodStart])
+  @@map("usage_counters")
+}
+
+// ───────────────────────── Audit ─────────────────────────
+
+/// Append-only record of every mutation. Not tenant-guarded, because
+/// platform-admin actions have no workspace; only the audit service writes here.
+model AuditLog {
+  id          String    @id @default(uuid(7))
+  workspaceId String?
+  actorUserId String?
+  actorType   ActorType
+  /// e.g. post.delete, channel.disconnect, plan.schedule_all
+  action      String
+  targetType  String?
+  targetId    String?
+  /// Diff summary, tool call ID. Never secrets.
+  metadata    Json      @default("{}")
+  ip          String?
+  requestId   String?
+  createdAt   DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([workspaceId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@map("audit_logs")
+}
+
+enum ActorType {
+  user
+  agent
+  system
+  admin
+}

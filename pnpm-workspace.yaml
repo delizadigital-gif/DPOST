@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+
+# pnpm blocks dependency install scripts by default; allow only what we need.
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
+  esbuild: true
+  # Official Prisma packages: version check and migration engine download.
+  prisma: true
+  '@prisma/engines': true

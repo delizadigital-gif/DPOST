@@ -1,0 +1,208 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/*
+ * DPOST design tokens (docs/06-uiux-architecture.md §8.2).
+ * Semantic shadcn variables (--primary, --muted, ...) map onto the DPOST
+ * palette, so generated components pick up the brand automatically.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* Fonts. Latin fonts first; browsers fall back per glyph, so Bengali
+     characters render in the Bengali font without extra markup. */
+  --font-sans: var(--font-inter), var(--font-noto-bengali), ui-sans-serif, system-ui, sans-serif;
+  --font-heading:
+    var(--font-bricolage), var(--font-hind-siliguri), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Brand scale */
+  --color-brand-50: var(--brand-50);
+  --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200);
+  --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400);
+  --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600);
+  --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800);
+  --color-brand-900: var(--brand-900);
+
+  /* Accents and ink */
+  --color-coral: var(--accent-coral);
+  --color-mint: var(--accent-mint);
+  --color-amber: var(--accent-amber);
+  --color-ink-900: var(--ink-900);
+  --color-ink-600: var(--ink-600);
+  --color-ink-400: var(--ink-400);
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+
+  /* shadcn semantic colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radius: 8 inputs/chips, 12 buttons, 16 cards, 24 modals/hero panels */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-4xl: 2.5rem;
+
+  --shadow-float: 0 8px 24px -8px rgb(20 18 31 / 0.12);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  --brand-50: #f3f0ff;
+  --brand-100: #e6e0ff;
+  --brand-200: #cfc3ff;
+  --brand-300: #ae9bff;
+  --brand-400: #8b71ff;
+  --brand-500: #7055fa;
+  --brand-600: #5b3df5;
+  --brand-700: #4a2ddb;
+  --brand-800: #3b24b0;
+  --brand-900: #2e1f85;
+
+  --accent-coral: #ff6b4a;
+  --accent-mint: #12b886;
+  --accent-amber: #f5a524;
+  --ink-900: #14121f;
+  --ink-600: #57546a;
+  --ink-400: #8e8aa3;
+  --canvas: #faf9fd;
+  --surface: #ffffff;
+
+  --spark-gradient: linear-gradient(135deg, #5b3df5 0%, #a155f7 55%, #ff6b4a 100%);
+
+  --background: var(--canvas);
+  --foreground: var(--ink-900);
+  --card: var(--surface);
+  --card-foreground: var(--ink-900);
+  --popover: var(--surface);
+  --popover-foreground: var(--ink-900);
+  --primary: var(--brand-600);
+  --primary-foreground: #ffffff;
+  --secondary: var(--brand-50);
+  --secondary-foreground: var(--brand-800);
+  --muted: #f4f2f9;
+  --muted-foreground: var(--ink-600);
+  --accent: var(--brand-50);
+  --accent-foreground: var(--brand-700);
+  --destructive: #e5484d;
+  --border: #eceaf3;
+  --input: #e2dfec;
+  --ring: var(--brand-600);
+  --chart-1: var(--brand-600);
+  --chart-2: var(--accent-coral);
+  --chart-3: var(--accent-mint);
+  --chart-4: var(--accent-amber);
+  --chart-5: var(--brand-300);
+  --sidebar: var(--surface);
+  --sidebar-foreground: var(--ink-900);
+  --sidebar-primary: var(--brand-600);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--brand-50);
+  --sidebar-accent-foreground: var(--brand-700);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--brand-600);
+}
+
+.dark {
+  --brand-50: #1e1840;
+  --brand-600: #7b63ff;
+  --brand-700: #9a88ff;
+  --brand-800: #c4b8ff;
+
+  --accent-coral: #ff7d60;
+  --accent-mint: #2fd3a0;
+  --accent-amber: #ffb84d;
+  --ink-900: #f4f3f8;
+  --ink-600: #a9a6ba;
+  --ink-400: #77738a;
+  --canvas: #0b0a10;
+  --surface: #121019;
+
+  --muted: #1a1724;
+  --destructive: #ff6369;
+  --border: #262334;
+  --input: #2e2a3e;
+}
+
+@utility bg-spark {
+  background-image: var(--spark-gradient);
+}
+
+@utility text-spark {
+  background-image: var(--spark-gradient);
+  background-clip: text;
+  color: transparent;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans antialiased;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply font-heading tracking-tight;
+  }
+  /* Bengali script needs extra line height for its taller glyphs. */
+  :lang(bn) {
+    line-height: 1.75;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

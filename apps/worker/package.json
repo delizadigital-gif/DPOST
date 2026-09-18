@@ -1,0 +1,22 @@
+{
+  "name": "@dpost/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false --env-file-if-exists=../../.env src/index.ts | pino-pretty",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@dpost/config": "workspace:*",
+    "@dpost/core": "workspace:*",
+    "@dpost/db": "workspace:*"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.13"
+  }
+}
