@@ -26,6 +26,17 @@ export const authEnvSchema = z
 
     /** Public contact address shown on the legal pages. */
     CONTACT_EMAIL: z.email().optional(),
+
+    /**
+     * Allows running in production without an email server, for a staging
+     * site before an email provider is set up. Confirmation and password
+     * reset emails are then not sent at all, so never enable this for real
+     * users. It must be set deliberately; the check below fails otherwise.
+     */
+    ALLOW_MISSING_SMTP: z
+      .enum(['true', 'false'])
+      .default('false')
+      .transform((value) => value === 'true'),
   })
   .superRefine((env, ctx) => {
     if (Boolean(env.GOOGLE_CLIENT_ID) !== Boolean(env.GOOGLE_CLIENT_SECRET)) {
@@ -35,8 +46,12 @@ export const authEnvSchema = z
         message: 'set both GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, or neither',
       });
     }
-    if (env.NODE_ENV === 'production' && !env.SMTP_URL) {
-      ctx.addIssue({ code: 'custom', path: ['SMTP_URL'], message: 'required in production' });
+    if (env.NODE_ENV === 'production' && !env.SMTP_URL && !env.ALLOW_MISSING_SMTP) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['SMTP_URL'],
+        message: 'required in production (or set ALLOW_MISSING_SMTP=true for a staging site)',
+      });
     }
     if (env.NODE_ENV === 'production' && !env.CONTACT_EMAIL) {
       // The legal pages must show a real way to reach us (Meta App Review checks this).

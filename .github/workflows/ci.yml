@@ -87,6 +87,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:deploy
+      # Sign-up needs the Free plan to exist, as in production (see docker/migrate.sh).
+      - run: pnpm db:seed
       - run: pnpm --filter @dpost/web exec playwright install --with-deps chromium
       - run: pnpm --filter @dpost/web build
       - run: pnpm test:e2e

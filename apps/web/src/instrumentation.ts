@@ -10,8 +10,13 @@ export async function register() {
   const { createLogger } = await import('@dpost/core');
 
   const env = getServerEnv();
-  getAuthEnv();
-  createLogger({ service: 'web', level: env.LOG_LEVEL, version: env.APP_VERSION }).info(
-    'web server started',
-  );
+  const authEnv = getAuthEnv();
+  const logger = createLogger({ service: 'web', level: env.LOG_LEVEL, version: env.APP_VERSION });
+
+  if (!authEnv.SMTP_URL) {
+    logger.warn(
+      'no email server configured: confirmation and password reset emails will NOT be sent',
+    );
+  }
+  logger.info('web server started');
 }

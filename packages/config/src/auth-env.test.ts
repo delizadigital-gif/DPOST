@@ -33,6 +33,22 @@ describe('parseAuthEnv', () => {
     expect(() => parseAuthEnv({ ...production, CONTACT_EMAIL: 'hello@example.com' })).not.toThrow();
   });
 
+  it('allows production without email only when explicitly opted in', () => {
+    const staging = {
+      BETTER_AUTH_SECRET: secret,
+      NODE_ENV: 'production',
+      CONTACT_EMAIL: 'hello@example.com',
+    };
+    expect(() => parseAuthEnv(staging)).toThrow(/SMTP_URL/);
+    const env = parseAuthEnv({ ...staging, ALLOW_MISSING_SMTP: 'true' });
+    expect(env.ALLOW_MISSING_SMTP).toBe(true);
+    expect(env.SMTP_URL).toBeUndefined();
+    // Anything other than "true" keeps the guard on.
+    expect(() => parseAuthEnv({ ...staging, ALLOW_MISSING_SMTP: 'yes' })).toThrow(
+      /ALLOW_MISSING_SMTP/,
+    );
+  });
+
   it('requires an SMTP server in production only', () => {
     expect(() => parseAuthEnv({ BETTER_AUTH_SECRET: secret, NODE_ENV: 'production' })).toThrow(
       /SMTP_URL/,
