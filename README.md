@@ -94,5 +94,6 @@ Notes:
   railway variables --service web --set-from-stdin BETTER_AUTH_SECRET
   ```
 - **`PORT` is reserved by Railway** and cannot be set as a variable. Point the domain at the port the app reports in its logs: `railway domain update <domain> --port 8080 --service web`.
-- **Email is not configured yet.** The staging service runs with `ALLOW_MISSING_SMTP=true`, so confirmation and password-reset emails are **not sent**; the server logs a warning at startup. Set `SMTP_URL` (Resend) and remove that flag before real users sign up.
+- **Email goes through Resend over SMTP.** Railway blocks outbound ports **465 and 587**, so a normal SMTP URL hangs with no error. Use Resend’s alternative port: `smtps://resend:<API key>@smtp.resend.com:2465` (port 2587 also works). Every send is logged, success or failure.
+- **Until a domain is verified in Resend**, it only delivers to the Resend account owner’s exact address, and refuses plus-addresses with a 550 error. Verify a domain and change `EMAIL_FROM` to it before real users sign up.
 - **Google sign-in** needs the deployed domain added to the OAuth client in Google Cloud Console, as an authorized origin and with `<domain>/api/auth/callback/google` as a redirect URI.

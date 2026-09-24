@@ -77,7 +77,9 @@ P17                                                                  ▓▓▓ �
 >
 > **Deployment (done 2026-09-25):** staging is live at https://web-production-6737e.up.railway.app, with `web`, `worker`, Postgres and Redis on Railway in Singapore, defined in code in `.railway/railway.ts`. Migrations and plan seeding run automatically before each release. Verified live: health checks, all public pages, route protection, sign-up, workspace creation and login.
 >
-> Outstanding for production: an email provider (staging runs with `ALLOW_MISSING_SMTP=true`, so **no emails are sent**), the deployed domain added to the Google OAuth client, security headers (Phase 16), and Sentry.
+> Email is live through Resend. Two traps worth remembering: Railway blocks outbound SMTP ports 465 and 587 (use Resend’s port 2465, or a send silently hangs), and Resend delivers only to the account owner’s exact address until a domain is verified. Google sign-in is verified on the live site.
+>
+> Outstanding for production: a verified sending domain, security headers (Phase 16), Sentry, and Railway deploying automatically on push (today a deploy is triggered manually).
 
 ## Phase 2 — Database, tenancy & the service pattern (~3 days)
 
