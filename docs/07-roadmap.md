@@ -75,7 +75,9 @@ P17                                                                  ▓▓▓ �
 > - Sentry is wired up at the first deploy, because it needs your account and DSN.
 > - Next.js is version 16: Turbopack is the default bundler, and route protection uses `proxy.ts` rather than `middleware.ts` (relevant for Phase 3).
 >
-> **Outstanding (needs your accounts):** push to GitHub so CI runs, and do the first Railway deploy (steps in the root `README.md`).
+> **Deployment (done 2026-09-25):** staging is live at https://web-production-6737e.up.railway.app, with `web`, `worker`, Postgres and Redis on Railway in Singapore, defined in code in `.railway/railway.ts`. Migrations and plan seeding run automatically before each release. Verified live: health checks, all public pages, route protection, sign-up, workspace creation and login.
+>
+> Outstanding for production: an email provider (staging runs with `ALLOW_MISSING_SMTP=true`, so **no emails are sent**), the deployed domain added to the Google OAuth client, security headers (Phase 16), and Sentry.
 
 ## Phase 2 — Database, tenancy & the service pattern (~3 days)
 

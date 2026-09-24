@@ -72,18 +72,27 @@ All variables are declared and validated in [`packages/config/src/env.ts`](packa
 
 ## Deployment (Railway)
 
-Both services build from the repo root with their own Dockerfile:
+The deployment is defined in code in [`.railway/railway.ts`](.railway/railway.ts): the `web` and `worker` services, Postgres and Redis, all in **Singapore** (`asia-southeast1`), the closest region to Bangladesh.
 
-| Service  | Dockerfile          | Notes                                                              |
-| -------- | ------------------- | ------------------------------------------------------------------ |
-| `web`    | `Dockerfile.web`    | Listens on `PORT` (default 3000). Health check path: `/api/health` |
-| `worker` | `Dockerfile.worker` | No public port                                                     |
+```bash
+railway config plan     # preview changes, touches nothing
+railway config apply    # apply them
+```
 
-Setup:
+Staging: **https://web-production-6737e.up.railway.app**
 
-1. Create a Railway project in the **Singapore** region (closest to Dhaka).
-2. Add two services from this GitHub repo. For each one, set the variable `RAILWAY_DOCKERFILE_PATH` to `Dockerfile.web` or `Dockerfile.worker`.
-3. On `web`: set `APP_URL` to the public URL, and set the health check path to `/api/health`.
-4. Set `APP_VERSION=${{RAILWAY_GIT_COMMIT_SHA}}` on both services so logs show which commit is running.
-5. Add Railway's Postgres and Redis to the project and reference their URLs as `DATABASE_URL` and `REDIS_URL` on both services.
-6. Migrations: run `pnpm db:deploy` against the Railway database before the first release. An automatic pre-deploy migration step is set up at the first deploy (tracked in the roadmap).
+| Service  | Dockerfile          | Notes                                                                     |
+| -------- | ------------------- | ------------------------------------------------------------------------- |
+| `web`    | `Dockerfile.web`    | Railway assigns the port (8080); the service domain must target that port |
+| `worker` | `Dockerfile.worker` | No public port                                                            |
+
+Notes:
+
+- **Migrations run automatically.** Before a new version takes traffic, Railway runs `sh /app/migrate.sh` from the web image, which applies pending migrations and inserts missing plans. Both steps are safe to repeat and never overwrite existing rows.
+- **Secrets are never in the repo.** Set them once, and the config file keeps them with `preserve()`:
+  ```bash
+  railway variables --service web --set-from-stdin BETTER_AUTH_SECRET
+  ```
+- **`PORT` is reserved by Railway** and cannot be set as a variable. Point the domain at the port the app reports in its logs: `railway domain update <domain> --port 8080 --service web`.
+- **Email is not configured yet.** The staging service runs with `ALLOW_MISSING_SMTP=true`, so confirmation and password-reset emails are **not sent**; the server logs a warning at startup. Set `SMTP_URL` (Resend) and remove that flag before real users sign up.
+- **Google sign-in** needs the deployed domain added to the OAuth client in Google Cloud Console, as an authorized origin and with `<domain>/api/auth/callback/google` as a redirect URI.
