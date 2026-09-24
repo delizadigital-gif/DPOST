@@ -38,6 +38,16 @@ afterAll(async () => {
 
 const noParams = { params: Promise.resolve({}) };
 
+function signedIn(userId: string, activeWorkspaceId: string): SessionInfo {
+  return {
+    userId,
+    activeWorkspaceId,
+    name: 'Test',
+    email: 'test@example.test',
+    emailVerified: true,
+  };
+}
+
 function request(path: string, init: RequestInit = {}) {
   return new Request(`http://localhost:3000${path}`, init);
 }
@@ -56,7 +66,7 @@ describe('GET /api/v1/me', () => {
   });
 
   it("returns the member's profile, workspace and plan", async () => {
-    session = { userId: owner.id, activeWorkspaceId: workspaceId };
+    session = signedIn(owner.id, workspaceId);
     const { response, body } = await call(getMeRoute, request('/api/v1/me'));
     expect(response.status).toBe(200);
     expect(response.headers.get('x-request-id')).toMatch(/^req_/);
@@ -69,7 +79,7 @@ describe('GET /api/v1/me', () => {
   });
 
   it("refuses a session pointing at someone else's workspace", async () => {
-    session = { userId: owner.id, activeWorkspaceId: otherWorkspaceId };
+    session = signedIn(owner.id, otherWorkspaceId);
     const { response, body } = await call(getMeRoute, request('/api/v1/me'));
     expect(response.status).toBe(403);
     expect(body.error.code).toBe('FORBIDDEN');
@@ -93,21 +103,21 @@ describe('route() wrapper', () => {
     });
 
   it('passes validated input and the context to the handler', async () => {
-    session = { userId: owner.id, activeWorkspaceId: workspaceId };
+    session = signedIn(owner.id, workspaceId);
     const { response, body } = await call(echo, post({ title: 'Eid offer', count: 2 }));
     expect(response.status).toBe(200);
     expect(body).toEqual({ workspaceId, body: { title: 'Eid offer', count: 2 } });
   });
 
   it('enforces the permission for the member’s role', async () => {
-    session = { userId: viewer.id, activeWorkspaceId: workspaceId };
+    session = signedIn(viewer.id, workspaceId);
     const { response, body } = await call(echo, post({ title: 'x', count: 1 }));
     expect(response.status).toBe(403);
     expect(body.error.code).toBe('FORBIDDEN');
   });
 
   it('returns field-level validation errors', async () => {
-    session = { userId: owner.id, activeWorkspaceId: workspaceId };
+    session = signedIn(owner.id, workspaceId);
     const { response, body } = await call(echo, post({ title: '', count: -1 }));
     expect(response.status).toBe(422);
     expect(body.error.code).toBe('VALIDATION');
@@ -115,13 +125,13 @@ describe('route() wrapper', () => {
   });
 
   it('rejects malformed JSON', async () => {
-    session = { userId: owner.id, activeWorkspaceId: workspaceId };
+    session = signedIn(owner.id, workspaceId);
     const { response } = await call(echo, post('{not json'));
     expect(response.status).toBe(422);
   });
 
   it('blocks cross-site mutations (CSRF)', async () => {
-    session = { userId: owner.id, activeWorkspaceId: workspaceId };
+    session = signedIn(owner.id, workspaceId);
     const { response } = await call(
       echo,
       post({ title: 'x', count: 1 }, { origin: 'https://evil.example' }),
@@ -130,7 +140,7 @@ describe('route() wrapper', () => {
   });
 
   it('allows same-origin mutations', async () => {
-    session = { userId: owner.id, activeWorkspaceId: workspaceId };
+    session = signedIn(owner.id, workspaceId);
     const { response } = await call(
       echo,
       post({ title: 'x', count: 1 }, { origin: 'http://localhost:3000' }),

@@ -102,6 +102,16 @@ P17                                                                  ▓▓▓ �
 - **Testing:** sign-up → verify → login E2E (Mailpit); reset flow; session revocation on reset; rate-limit lockout; protected route redirects; unverified user cannot reach publish endpoints.
 - **Done when:** a new user can sign up on staging, receive a real email, verify, log in and log out, and legal pages are publicly reachable.
 
+> **Status (2026-09-19): done and verified locally** (staging waits on the first Railway deploy). 199 unit and integration tests and 14 end-to-end tests pass. The end-to-end tests cover the real journey: sign up → real email in Mailpit → confirm → sign out → log in, plus password reset and the legal pages. Changes from the plan:
+>
+> - **Password hashing uses Better Auth's built-in scrypt, not Argon2id.** Both are memory-hard and OWASP-recommended; scrypt needs no native module, which keeps the Docker images and bundling simple.
+> - **Emails are plain HTML/text template functions**, not React Email, and are sent over SMTP: Mailpit locally, Resend's SMTP interface in production. One code path, no extra dependencies.
+> - **Unverified users can sign in.** Connecting Facebook and publishing will require a confirmed email (`assertEmailVerified`, used from Phase 8).
+> - **Client IP is computed once**, from the rightmost `X-Forwarded-For` entry, and handed to Better Auth in a private header. The first entry, and Better Auth's default handling, could be spoofed to bypass per-IP rate limits. **Verify at the first deploy** that Railway adds exactly one proxy hop, and revisit this if a CDN is placed in front.
+> - "Continue with Google" is verified with a real Google account. Better Auth stores Google's tokens in plain text by default, so `encryptOAuthTokens` is now on. Before production, **reset the Google client secret** (it was shared in chat during setup) and add the production domain to the OAuth client.
+> - Auth forms submit with `method="post"`, so a submission before the page is interactive can never put a password in the URL.
+> - The legal pages describe DPOST's actual data practices, but they still **need review by a lawyer before public launch**. `CONTACT_EMAIL` is required in production.
+
 ## Phase 4 — App shell & design system (~3 days)
 
 **Goal:** the product _feels_ real, with correct empty states everywhere.

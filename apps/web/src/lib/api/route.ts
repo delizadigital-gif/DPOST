@@ -4,6 +4,7 @@ import { getServerEnv } from '@dpost/config';
 import {
   AppError,
   assertCan,
+  clientIpFromHeaders,
   createContext,
   enforceRateLimit,
   getRedis,
@@ -78,7 +79,7 @@ export function route<B extends Schema, Q extends Schema>(
     const requestId = newRequestId();
     try {
       assertSameOrigin(request);
-      const ip = clientIp(request);
+      const ip = clientIpFromHeaders(request.headers);
 
       let ctx: Context | undefined;
       if (options.auth === 'member') {
@@ -86,6 +87,7 @@ export function route<B extends Schema, Q extends Schema>(
         if (!session) throw new AppError('UNAUTHENTICATED');
         ctx = await createContext({
           userId: session.userId,
+          emailVerified: session.emailVerified,
           workspaceId: session.activeWorkspaceId,
           source: 'web',
           requestId,
@@ -133,11 +135,6 @@ function assertSameOrigin(request: Request) {
   if (origin && origin !== new URL(getServerEnv().APP_URL).origin) {
     throw new AppError('FORBIDDEN', { message: 'Cross-site requests are not allowed.' });
   }
-}
-
-/** The client IP as reported by our hosting proxy (first X-Forwarded-For entry). */
-function clientIp(request: Request): string | undefined {
-  return request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || undefined;
 }
 
 function validationError(error: z.ZodError): AppError {

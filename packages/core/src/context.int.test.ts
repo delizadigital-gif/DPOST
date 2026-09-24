@@ -29,25 +29,33 @@ describe('createContext', () => {
       userId: alice.id,
       workspaceId: aliceWorkspace,
       source: 'web',
+      emailVerified: true,
     });
     expect(ctx).toMatchObject({ userId: alice.id, workspaceId: aliceWorkspace, role: 'owner' });
     expect(ctx.requestId).toMatch(/^req_/);
   });
 
   it("falls back to the user's first workspace", async () => {
-    const ctx = await createContext({ userId: alice.id, source: 'web' });
+    const ctx = await createContext({ userId: alice.id, source: 'web', emailVerified: true });
     expect(ctx.workspaceId).toBe(aliceWorkspace);
   });
 
   it("refuses a workspace the user doesn't belong to", async () => {
     await expect(
-      createContext({ userId: alice.id, workspaceId: bobWorkspace, source: 'web' }),
+      createContext({
+        userId: alice.id,
+        workspaceId: bobWorkspace,
+        source: 'web',
+        emailVerified: true,
+      }),
     ).rejects.toMatchObject({ code: 'FORBIDDEN' });
   });
 
   it('reports a user without any workspace', async () => {
     const loner = await world.createUser('Loner');
-    await expect(createContext({ userId: loner.id, source: 'web' })).rejects.toMatchObject({
+    await expect(
+      createContext({ userId: loner.id, source: 'web', emailVerified: true }),
+    ).rejects.toMatchObject({
       code: 'NOT_FOUND',
     });
   });
@@ -59,14 +67,16 @@ describe('createContext', () => {
       userId: viewer.id,
       workspaceId: aliceWorkspace,
       source: 'web',
+      emailVerified: false,
     });
     expect(ctx.role).toBe('viewer');
+    expect(ctx.emailVerified).toBe(false);
   });
 });
 
 describe('getMe', () => {
   it('returns the user, workspace, role and plan', async () => {
-    const ctx = await createContext({ userId: alice.id, source: 'web' });
+    const ctx = await createContext({ userId: alice.id, source: 'web', emailVerified: true });
     const me = await getMe(ctx);
     expect(me.user).toMatchObject({ id: alice.id, name: 'Alice' });
     expect(me.workspace).toMatchObject({
@@ -79,7 +89,9 @@ describe('getMe', () => {
   });
 
   it('exposes only whitelisted fields', async () => {
-    const me = await getMe(await createContext({ userId: alice.id, source: 'web' }));
+    const me = await getMe(
+      await createContext({ userId: alice.id, source: 'web', emailVerified: true }),
+    );
     expect(Object.keys(me.user).sort()).toEqual(['email', 'emailVerified', 'id', 'locale', 'name']);
     expect(Object.keys(me.workspace).sort()).toEqual(['id', 'locale', 'name', 'slug', 'timezone']);
   });
@@ -87,7 +99,12 @@ describe('getMe', () => {
 
 describe('recordAudit', () => {
   it('records who did what, from which entry point', async () => {
-    const ctx = await createContext({ userId: alice.id, source: 'agent', ip: '203.0.113.7' });
+    const ctx = await createContext({
+      userId: alice.id,
+      source: 'agent',
+      emailVerified: true,
+      ip: '203.0.113.7',
+    });
     await recordAudit(ctx, {
       action: 'post.delete',
       targetType: 'content_post',

@@ -71,3 +71,17 @@ export function can(role: WorkspaceRole, permission: Permission): boolean {
 export function assertCan(role: WorkspaceRole, permission: Permission): void {
   if (!can(role, permission)) throw new AppError('FORBIDDEN');
 }
+
+/**
+ * Actions that reach outside DPOST (connecting a Facebook Page, publishing)
+ * need a confirmed email. It keeps throwaway accounts from using our Meta
+ * app, whose standing protects every customer.
+ */
+export function assertEmailVerified(ctx: { emailVerified: boolean }): void {
+  if (!ctx.emailVerified) {
+    throw new AppError('FORBIDDEN', {
+      message: 'Please confirm your email address first. Check your inbox for the link.',
+      details: { reason: 'email_unverified' },
+    });
+  }
+}

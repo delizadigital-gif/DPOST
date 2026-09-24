@@ -20,6 +20,8 @@ export interface Context {
   userId: string;
   workspaceId: string;
   role: WorkspaceRole;
+  /** Whether the user has confirmed their email address. */
+  emailVerified: boolean;
   /** Database client bound to `workspaceId`. */
   db: TenantDb;
   ip?: string;
@@ -31,6 +33,7 @@ export function newRequestId(): string {
 
 export interface CreateContextInput {
   userId: string;
+  emailVerified: boolean;
   /** Preferred workspace (e.g. the session's active one). Falls back to the user's first. */
   workspaceId?: string | null;
   source: RequestSource;
@@ -70,6 +73,7 @@ export async function createContext(input: CreateContextInput): Promise<Context>
     userId: input.userId,
     workspaceId: membership.workspaceId,
     role: membership.role,
+    emailVerified: input.emailVerified,
     db: getTenantDb(membership.workspaceId),
     ...(input.ip ? { ip: input.ip } : {}),
   };

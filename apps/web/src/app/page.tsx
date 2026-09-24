@@ -1,4 +1,7 @@
+import Link from 'next/link';
 import { CalendarCheck, MessageSquareText, Sparkles } from 'lucide-react';
+import { Logo } from '@/components/brand/logo';
+import { Button } from '@/components/ui/button';
 
 // Temporary home page for Phase 1. It proves the design tokens and fonts work
 // end to end; the full marketing site is built in Phase 14.
@@ -29,10 +32,17 @@ export default function Home() {
       />
 
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
-        <span className="font-heading text-xl font-bold tracking-tight">
-          D<span className="text-spark">POST</span>
-        </span>
-        <span className="text-sm text-muted-foreground">by DelizaDigital</span>
+        <Link href="/" aria-label="DPOST home">
+          <Logo />
+        </Link>
+        <nav className="flex items-center gap-2">
+          <Button asChild variant="ghost" className="h-9 rounded-lg px-3">
+            <Link href="/login">Log in</Link>
+          </Button>
+          <Button asChild className="h-9 rounded-lg px-4">
+            <Link href="/signup">Get started</Link>
+          </Button>
+        </nav>
       </header>
 
       <section className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 py-16 text-center">
@@ -67,8 +77,19 @@ export default function Home() {
         </ol>
       </section>
 
-      <footer className="mx-auto w-full max-w-5xl px-6 py-8 text-sm text-muted-foreground">
-        © {new Date().getFullYear()} DelizaDigital
+      <footer className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-8 text-sm text-muted-foreground">
+        <span>© {new Date().getFullYear()} DelizaDigital</span>
+        <nav className="flex gap-5">
+          <Link href="/privacy" className="hover:text-foreground">
+            Privacy
+          </Link>
+          <Link href="/terms" className="hover:text-foreground">
+            Terms
+          </Link>
+          <Link href="/data-deletion" className="hover:text-foreground">
+            Data deletion
+          </Link>
+        </nav>
       </footer>
     </main>
   );

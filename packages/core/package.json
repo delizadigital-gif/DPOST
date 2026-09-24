@@ -5,7 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./testing": "./src/testing/fixtures.ts"
+    "./testing": "./src/testing/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -14,8 +14,13 @@
   "dependencies": {
     "@dpost/config": "workspace:*",
     "@dpost/db": "workspace:*",
+    "better-auth": "1.7.5",
     "ioredis": "^6.0.0",
+    "nodemailer": "^10.0.10",
     "pino": "^10.3.1",
     "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^8.0.2"
   }
 }

@@ -16,11 +16,24 @@ COPY . .
 RUN pnpm install --offline --frozen-lockfile
 RUN pnpm --filter @dpost/web build
 
+# Self-contained copy of the database package, including the Prisma CLI, so
+# the release can apply migrations (see `pnpm migrate` below).
+FROM build AS migrator
+RUN pnpm --filter @dpost/db deploy --prod=false --legacy /migrator
+RUN pnpm --filter @dpost/db exec tsx scripts/plans-to-sql.ts > /migrator/plans.sql
+
 FROM node:24-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+# Prisma's migration engine needs OpenSSL, which the slim image omits.
+RUN apt-get update && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
 COPY --from=build --chown=node:node /repo/apps/web/.next/standalone ./
 COPY --from=build --chown=node:node /repo/apps/web/.next/static ./apps/web/.next/static
+COPY --from=migrator --chown=node:node /migrator ./migrator
+# Applies pending migrations. Run as the pre-deploy step, so a release only
+# goes live after the database matches the code.
+COPY --chown=node:node docker/migrate.sh /app/migrate.sh
 USER node
 EXPOSE 3000
 CMD ["node", "apps/web/server.js"]
