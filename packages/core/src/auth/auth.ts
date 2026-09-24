@@ -38,10 +38,25 @@ export function createAuth({ plugins = [], logger }: CreateAuthOptions = {}) {
   const { APP_URL } = getServerEnv();
   const env = getAuthEnv();
 
+  // Sent without awaiting, so response time doesn't reveal whether an account
+  // exists. The outcome is logged either way: silent email failures are hard
+  // to notice and leave people unable to sign in.
   const send = (message: Parameters<typeof sendEmail>[0], kind: string) => {
-    void sendEmail(message).catch((error: unknown) =>
-      logger?.error({ err: error, kind }, 'failed to send email'),
-    );
+    void sendEmail(message)
+      .then((result) => {
+        if (result.rejected.length > 0) {
+          logger?.error(
+            { kind, rejected: result.rejected.length },
+            'mail server rejected recipient',
+          );
+        } else {
+          logger?.info(
+            { kind, messageId: result.messageId, response: result.response },
+            'email sent',
+          );
+        }
+      })
+      .catch((error: unknown) => logger?.error({ err: error, kind }, 'failed to send email'));
   };
 
   return betterAuth({
