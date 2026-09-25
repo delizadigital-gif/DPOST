@@ -10,5 +10,7 @@ allowBuilds:
   # Official Prisma packages: version check and migration engine download.
   prisma: true
   '@prisma/engines': true
-  '@parcel/watcher': set this to true or false
-  '@swc/core': set this to true or false
+  # Pulled in by next-intl's build tooling. Both ship prebuilt binaries as
+  # optional platform packages, so their install scripts aren't needed.
+  '@parcel/watcher': false
+  '@swc/core': false
