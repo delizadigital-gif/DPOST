@@ -1,0 +1,120 @@
+{
+  "nav": {
+    "groups": {
+      "create": "Create",
+      "plan": "Plan",
+      "library": "Library",
+      "grow": "Grow",
+      "setup": "Setup"
+    },
+    "home": "Home",
+    "assistant": "AI Assistant",
+    "create": "Create post",
+    "calendar": "Calendar",
+    "content": "Content",
+    "media": "Media",
+    "brand": "Brand Brain",
+    "analytics": "Analytics",
+    "channels": "Channels",
+    "settings": "Settings",
+    "notifications": "Notifications",
+    "more": "More",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "shell": {
+    "account": "Account",
+    "signOut": "Sign out",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System",
+    "notificationsEmpty": "No notifications yet",
+    "notificationsEmptyBody": "You'll hear from us when a post publishes or needs your attention.",
+    "viewAll": "View all",
+    "usageTitle": "{plan} plan",
+    "usagePosts": "{used} of {limit} AI posts",
+    "usageUnlimited": "Unlimited",
+    "upgrade": "View plan"
+  },
+  "verify": {
+    "title": "Confirm your email",
+    "body": "We sent a link to {email}. You'll need it to connect your Facebook Page.",
+    "resend": "Resend the email"
+  },
+  "pages": {
+    "home": {
+      "greeting": "Welcome, {name}",
+      "subtitle": "Your account is ready. Here's what you'll be able to do next."
+    },
+    "assistant": {
+      "title": "AI Assistant",
+      "subtitle": "Ask for a content plan, a post, or a change to your schedule.",
+      "emptyTitle": "Your AI assistant arrives soon",
+      "emptyBody": "Soon you'll be able to say \"plan my next 7 days\" and review what it writes, right here."
+    },
+    "content": {
+      "title": "Content",
+      "subtitle": "Every post you've drafted, approved or published.",
+      "emptyTitle": "No posts yet",
+      "emptyBody": "Posts you write or generate will be listed here, with their status."
+    },
+    "calendar": {
+      "title": "Calendar",
+      "subtitle": "See what goes out, and when.",
+      "emptyTitle": "Your calendar is empty",
+      "emptyBody": "Scheduled posts will appear here by day, week or list."
+    },
+    "create": {
+      "title": "Create post",
+      "subtitle": "Write it yourself, or let the AI draft it for you.",
+      "emptyTitle": "The composer is on its way",
+      "emptyBody": "You'll write here, add an image, preview how it looks on Facebook and schedule it."
+    },
+    "channels": {
+      "title": "Channels",
+      "subtitle": "The social accounts DPOST publishes to.",
+      "emptyTitle": "No channels connected",
+      "emptyBody": "Connect a Facebook Page to let DPOST publish for you. Instagram and others come later."
+    },
+    "media": {
+      "title": "Media",
+      "subtitle": "Images you upload, and images the AI creates.",
+      "emptyTitle": "No media yet",
+      "emptyBody": "Uploads and AI-generated images will be collected here, ready to reuse."
+    },
+    "brand": {
+      "title": "Brand Brain",
+      "subtitle": "What the AI knows about your business.",
+      "emptyTitle": "Nothing learned yet",
+      "emptyBody": "Tell DPOST about your business and it will write in your voice."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "How your published posts performed.",
+      "emptyTitle": "No results yet",
+      "emptyBody": "Once posts go out, you'll see reactions, comments and reach here."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "subtitle": "Published posts, failures and things that need you.",
+      "emptyTitle": "Nothing to report",
+      "emptyBody": "We'll tell you when a post publishes, or if one needs your attention."
+    },
+    "settings": {
+      "title": "Settings",
+      "subtitle": "Your account, workspace and preferences.",
+      "account": "Account",
+      "workspace": "Workspace",
+      "ai": "AI defaults",
+      "notifications": "Notifications",
+      "billing": "Plan & usage",
+      "emptyTitle": "Settings are coming",
+      "emptyBody": "Account details, workspace preferences and your plan will be managed here."
+    }
+  },
+  "common": {
+    "comingSoon": "Coming soon",
+    "inDevelopment": "In development"
+  }
+}

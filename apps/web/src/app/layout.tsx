@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Bricolage_Grotesque, Hind_Siliguri, Inter, Noto_Sans_Bengali } from 'next/font/google';
+import { NextIntlClientProvider } from 'next-intl';
+import { Providers } from '@/components/providers';
 import { cn } from '@/lib/utils';
 import './globals.css';
 
@@ -42,8 +44,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
+    // suppressHydrationWarning: next-themes sets the theme class on <html>
+    // before React hydrates, which would otherwise be reported as a mismatch.
     <html
       lang="en"
+      suppressHydrationWarning
       className={cn(
         inter.variable,
         bricolage.variable,
@@ -51,7 +56,11 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         hindSiliguri.variable,
       )}
     >
-      <body>{children}</body>
+      <body>
+        <NextIntlClientProvider>
+          <Providers>{children}</Providers>
+        </NextIntlClientProvider>
+      </body>
     </html>
   );
 }

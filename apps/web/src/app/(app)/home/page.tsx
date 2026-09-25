@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { CalendarCheck, Link2, MessageSquareText, Sparkles } from 'lucide-react';
 import { ResendVerificationButton } from '@/components/auth/resend-verification';
+import { PageHeader } from '@/components/app/page-header';
+import { SparkButton } from '@/components/app/spark-button';
 import { getCurrentSession } from '@/lib/auth/session';
 import { VerifiedToast } from './verified-toast';
 
@@ -17,23 +20,24 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
   // The layout has already redirected signed-out visitors.
   const session = (await getCurrentSession())!;
   const params = await searchParams;
+  const t = await getTranslations();
   const firstName = session.name.split(' ')[0] ?? session.name;
 
   return (
-    <div className="space-y-8">
+    <>
       {params.verified === '1' && session.emailVerified ? <VerifiedToast /> : null}
 
       {!session.emailVerified ? (
         <section
           aria-labelledby="verify-heading"
-          className="flex flex-col gap-4 rounded-2xl border border-amber/40 bg-amber/10 p-5 sm:flex-row sm:items-center sm:justify-between"
+          className="mb-8 flex flex-col gap-4 rounded-2xl border border-amber/40 bg-amber/10 p-5 sm:flex-row sm:items-center sm:justify-between"
         >
           <div>
             <h2 id="verify-heading" className="font-sans text-base font-semibold">
-              Confirm your email
+              {t('verify.title')}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              We sent a link to {session.email}. You’ll need it to connect your Facebook Page.
+              {t('verify.body', { email: session.email })}
             </p>
           </div>
           <div className="sm:w-56">
@@ -46,12 +50,11 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
         </section>
       ) : null}
 
-      <div>
-        <h1 className="text-3xl font-bold">Welcome, {firstName}</h1>
-        <p className="mt-2 text-muted-foreground">
-          Your account is ready. Here’s what you’ll be able to do next.
-        </p>
-      </div>
+      <PageHeader
+        title={t('pages.home.greeting', { name: firstName })}
+        subtitle={t('pages.home.subtitle')}
+        action={<SparkButton href="/assistant">{t('nav.assistant')}</SparkButton>}
+      />
 
       <ol className="grid gap-4 sm:grid-cols-2">
         {nextSteps.map(({ icon: Icon, title, body }, index) => (
@@ -67,9 +70,9 @@ export default async function HomePage({ searchParams }: PageProps<'/home'>) {
           </li>
         ))}
       </ol>
-      <p className="text-sm text-muted-foreground">
+      <p className="mt-6 text-sm text-muted-foreground">
         These steps become available over the next updates.
       </p>
-    </div>
+    </>
   );
 }

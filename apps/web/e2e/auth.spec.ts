@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
+import { signOut } from './helpers';
 import { waitForEmailLink } from './mailpit';
 
 const PASSWORD = 'saree shop 2026';
@@ -17,7 +18,7 @@ test('signed-out visitors are sent to log in, and back afterwards', async ({ pag
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Welcome back');
 });
 
-test('sign up, confirm email, sign out and log back in', async ({ page }) => {
+test('sign up, confirm email, sign out and log back in', async ({ page }, testInfo) => {
   const email = `e2e-${randomUUID()}@example.test`;
 
   // Sign up
@@ -47,7 +48,7 @@ test('sign up, confirm email, sign out and log back in', async ({ page }) => {
   expect(await me.json()).toMatchObject({ user: { email, emailVerified: true }, role: 'owner' });
 
   // Sign out
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  await signOut(page, { desktop: testInfo.project.name === 'desktop' });
   await expect(page).toHaveURL(/\/login$/);
   expect((await page.request.get('/api/v1/me')).status()).toBe(401);
 

@@ -27,3 +27,7 @@ export { createAuth } from './auth/auth';
 export type { Auth, CreateAuthOptions } from './auth/auth';
 export { sendEmail } from './email/send';
 export type { EmailMessage } from './email/send';
+export { listRecentNotifications } from './services/notifications';
+export type { NotificationSummary, RecentNotifications } from './services/notifications';
+export { currentPeriodStart, getWorkspaceUsage } from './services/usage';
+export type { WorkspaceUsage } from './services/usage';

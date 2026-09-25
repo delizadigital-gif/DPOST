@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const monorepoRoot = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -19,4 +20,6 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
 };
 
-export default nextConfig;
+// All visible strings come from messages/, so a Bangla UI is a translation
+// job later rather than a code change.
+export default createNextIntlPlugin('./src/i18n/request.ts')(nextConfig);

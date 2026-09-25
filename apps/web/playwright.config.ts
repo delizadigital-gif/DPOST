@@ -15,6 +15,12 @@ export default defineConfig({
   },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    // Tablet width in Chrome: the iPad profiles default to WebKit, which
+    // would mean downloading a second browser engine for one breakpoint.
+    {
+      name: 'tablet',
+      use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 }, hasTouch: true },
+    },
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
   ],
   // CI tests the production build (built in an earlier step); locally we

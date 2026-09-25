@@ -125,6 +125,15 @@ P17                                                                  ▓▓▓ �
 - **Testing:** Playwright visual smoke per route at 3 viewports; axe accessibility checks on the shell.
 - **Done when:** every nav item leads to a designed page (empty state), and it's responsive at 375 / 768 / 1280.
 
+> **Status (2026-09-25): done and verified locally.** 206 unit and integration tests, plus 35 end-to-end tests at three screen sizes. Every section loads with its own empty state, nothing scrolls sideways, and automated accessibility checks (axe, WCAG 2.1 AA) find no serious violations on the shell.
+>
+> - **Navigation is defined once** in `src/lib/navigation.ts`; the sidebar, the phone tab bar and the "More" sheet all read from it, and a test fails if a label has no translation.
+> - **Every visible string lives in `messages/en.json`** through next-intl, so a Bangla interface later is translation work rather than code changes.
+> - **Light and dark themes** via next-themes, following the system setting until the user chooses.
+> - The sidebar shows the real plan and AI usage, and the bell reads real notifications (both empty until later phases).
+> - Sign-out moved into the account menu, so the Phase 3 end-to-end test was updated to match.
+> - Tablet tests run at 768px in Chrome rather than an iPad profile, which would mean downloading a second browser engine for one breakpoint.
+
 ## Phase 5 — Onboarding & Brand Brain (manual) (~3 days)
 
 **Goal:** capture business context, the AI's raw material.
