@@ -107,6 +107,10 @@ model Workspace {
   country   String   @default("BD")
   /// AI and notification defaults, validated with zod in the workspace service.
   settings  Json     @default("{}")
+  /// Set when the owner finishes, or dismisses, the welcome wizard. A column
+  /// rather than a `settings` key because every signed-in page reads it to
+  /// decide whether the user still needs onboarding.
+  onboardingCompletedAt DateTime? @db.Timestamptz(3)
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 

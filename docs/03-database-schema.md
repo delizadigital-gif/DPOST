@@ -54,6 +54,11 @@ The source of truth is now [`packages/db/prisma/schema.prisma`](../packages/db/p
 - **`audit_logs` has a `requestId` column**, to tie log lines to audit entries.
 - **`plans` has a `sortOrder` column**, and subscriptions carry a `provider` default of `manual`.
 
+### Changes made during implementation (Phase 5)
+
+- **`workspaces.onboardingCompletedAt`** (nullable `timestamptz`): set when the owner finishes or dismisses the welcome wizard. A column rather than a key inside `settings`, because every signed-in page reads it to decide whether to send the user to onboarding.
+- **`brand_profiles` sections hold per-field provenance**, exactly as the draft describes: `{ value, source: 'user' | 'onboarding' | 'analysis', updatedAt }` per field, validated section by section in [`packages/core/src/brand/sections.ts`](../packages/core/src/brand/sections.ts). A field written by a person is never overwritten by Page analysis.
+
 ## 5.3 Status machines
 
 **`content_posts.status`** (editorial)

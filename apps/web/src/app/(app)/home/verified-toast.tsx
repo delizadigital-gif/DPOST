@@ -8,7 +8,10 @@ import { toast } from 'sonner';
 export function VerifiedToast() {
   const router = useRouter();
   useEffect(() => {
-    toast.success('Email confirmed. Thanks!');
+    // A fixed id: React may run this effect twice (Strict Mode, or a remount
+    // during navigation), and sonner then updates the same toast instead of
+    // stacking a second identical one.
+    toast.success('Email confirmed. Thanks!', { id: 'email-verified' });
     router.replace('/home');
   }, [router]);
   return null;

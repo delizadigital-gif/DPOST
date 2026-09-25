@@ -87,7 +87,7 @@
       "title": "Brand Brain",
       "subtitle": "What the AI knows about your business.",
       "emptyTitle": "Nothing learned yet",
-      "emptyBody": "Tell DPOST about your business and it will write in your voice."
+      "emptyBody": "Answer a few questions about your business and DPOST will write in your voice."
     },
     "analytics": {
       "title": "Analytics",
@@ -116,5 +116,283 @@
   "common": {
     "comingSoon": "Coming soon",
     "inDevelopment": "In development"
+  },
+  "options": {
+    "businessType": {
+      "shop": "Shop",
+      "brand": "Brand",
+      "creator": "Creator",
+      "service": "Service business",
+      "agency": "Agency",
+      "other": "Something else"
+    },
+    "tone": {
+      "friendly": "Friendly",
+      "professional": "Professional",
+      "playful": "Playful",
+      "premium": "Premium",
+      "bold": "Bold"
+    },
+    "language": {
+      "en": "English",
+      "bn": "বাংলা (Bangla)",
+      "banglish": "Banglish"
+    },
+    "emoji": {
+      "none": "No emoji",
+      "light": "A little",
+      "moderate": "A few per post",
+      "heavy": "Plenty"
+    },
+    "goal": {
+      "sales": "Sell more",
+      "awareness": "Get known",
+      "engagement": "Start conversations",
+      "traffic": "Send people to my website",
+      "loyalty": "Keep customers close"
+    },
+    "hashtags": {
+      "none": "No hashtags",
+      "few": "A few (2–4)",
+      "many": "Many (8–12)"
+    },
+    "memoryCategory": {
+      "voice": "Voice",
+      "audience": "Audience",
+      "product": "Product",
+      "policy": "Rule",
+      "schedule": "Timing",
+      "other": "Other"
+    },
+    "memorySource": {
+      "chat": "Learned from chat",
+      "settings": "Added by you",
+      "analysis": "From your Page"
+    }
+  },
+  "onboarding": {
+    "skipSetup": "Skip setup",
+    "stepCounter": "Step {current} of {total}",
+    "stepsRemainingTime": "Takes about 2 minutes",
+    "progressLabel": "Setup progress",
+    "stepDone": "done",
+    "steps": {
+      "business": "Your business",
+      "audience": "Customers and products",
+      "voice": "Voice and goals",
+      "connect": "Connect"
+    },
+    "back": "Back",
+    "continue": "Continue",
+    "saving": "Saving…",
+    "skipStep": "Skip this step",
+    "business": {
+      "title": "Tell us about your business",
+      "description": "DPOST writes as you, not as a chatbot. The more it knows, the less you will have to fix.",
+      "nameLabel": "Business name",
+      "nameHint": "This is the only answer we really need.",
+      "namePlaceholder": "Rahim's Kitchen",
+      "typeLabel": "What kind of business is it?",
+      "typeDescriptions": {
+        "shop": "You sell products, online or in a store",
+        "brand": "You make or own a product line",
+        "creator": "You are the face of what you post",
+        "service": "People book your time or skill",
+        "agency": "You work on behalf of other businesses",
+        "other": "None of these fit"
+      },
+      "industryLabel": "Industry",
+      "industryHint": "Pick from the list or write your own.",
+      "industryPlaceholder": "Home-made food",
+      "industrySuggestions": [
+        "Clothing & fashion",
+        "Home-made food",
+        "Restaurant & café",
+        "Beauty & salon",
+        "Electronics & mobile",
+        "Grocery & daily needs",
+        "Handicrafts",
+        "Education & coaching",
+        "Health & fitness",
+        "Travel & tours",
+        "Real estate",
+        "Digital services",
+        "Photography",
+        "Jewellery",
+        "Furniture & home decor"
+      ],
+      "descriptionLabel": "What do you do, in a sentence or two?",
+      "descriptionHint": "Write it the way you would tell a new customer.",
+      "descriptionPlaceholder": "We cook home-style Bangladeshi food to order and deliver across Dhaka the same day."
+    },
+    "audience": {
+      "title": "Who are you posting for?",
+      "description": "Posts written for someone specific always beat posts written for everyone. This is also where the AI learns what you actually sell.",
+      "customersLabel": "Who buys from you?",
+      "customersHint": "Age, work, where they live, what they care about — whatever you know.",
+      "customersPlaceholder": "Working families in Dhaka who want home-style food without cooking after office.",
+      "itemsLabel": "What do you sell?",
+      "itemsHint": "Press Enter after each one. The AI will never invent a product you did not list.",
+      "itemsPlaceholder": "Biryani, cakes, catering…",
+      "locationsLabel": "Where are your customers?",
+      "locationsHint": "Areas, cities or countries you deliver to.",
+      "locationsPlaceholder": "Dhanmondi, Dhaka…"
+    },
+    "voice": {
+      "title": "How should your posts sound?",
+      "description": "Language matters most here. Bangla, Banglish and English are written differently by DPOST, not translated from one another.",
+      "toneLabel": "Pick a tone",
+      "toneDescriptions": {
+        "friendly": "Warm and close, like talking to a regular",
+        "professional": "Clear and dependable",
+        "playful": "Light, with jokes and questions",
+        "premium": "Calm and refined, few words",
+        "bold": "Direct and confident"
+      },
+      "languagesLabel": "Which languages should DPOST write in?",
+      "languagesHint": "Pick more than one and posts will be mixed across them.",
+      "languages": {
+        "en": "English",
+        "bn": "বাংলা (Bangla)",
+        "banglish": "Banglish"
+      },
+      "goalsLabel": "What are you hoping to get out of posting?",
+      "goalsHint": "This shapes the mix of posts, not just their wording.",
+      "goals": {
+        "sales": "Sell more",
+        "awareness": "Get known",
+        "engagement": "Start conversations",
+        "traffic": "Send people to my website",
+        "loyalty": "Keep customers close"
+      },
+      "tones": {
+        "friendly": {
+          "label": "Friendly",
+          "description": "Warm and close, like talking to a regular"
+        },
+        "professional": {
+          "label": "Professional",
+          "description": "Clear and dependable"
+        },
+        "playful": {
+          "label": "Playful",
+          "description": "Light, with jokes and questions"
+        },
+        "premium": {
+          "label": "Premium",
+          "description": "Calm and refined, few words"
+        },
+        "bold": {
+          "label": "Bold",
+          "description": "Direct and confident"
+        }
+      },
+      "frequencyLabel": "How often would you like to post?",
+      "frequencyHint": "You can change this any time, and nothing is published without your approval.",
+      "frequencyValue": "{count, plural, =1 {1 post a week} other {# posts a week}}"
+    },
+    "connect": {
+      "title": "Connect your Facebook Page",
+      "description": "One honest note before you start using DPOST.",
+      "statusTitle": "Facebook publishing is not ready yet",
+      "statusBody": "The connection to Facebook Pages is still being built, and Meta has to review our app before it can post on your behalf. Until then DPOST cannot publish anything to your Page.",
+      "pointSchedule": "When it is ready you will connect your Page here, choose which one, and scheduled posts will go out on their own.",
+      "pointMeanwhile": "Everything else works now: the AI learns your business, writes posts and keeps them on a calendar for you to copy or approve.",
+      "finish": "Finish setup"
+    }
+  },
+  "brand": {
+    "startSetup": "Start setup",
+    "edit": "Edit",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved",
+    "cancel": "Cancel",
+    "notSet": "Not set",
+    "fieldsFilled": "{filled} of {total} filled in",
+    "pillarName": "Theme",
+    "pillarWeight": "Share",
+    "pillarAdd": "Add a theme",
+    "pillarRemove": "Remove {name}",
+    "cardTitle": "What the AI reads",
+    "cardSubtitle": "This exact text is given to the AI with every request. If a post sounds wrong, the reason is usually here.",
+    "provenance": {
+      "user": "You",
+      "onboarding": "From setup",
+      "analysis": "From your Page"
+    },
+    "sections": {
+      "business": {
+        "title": "Business",
+        "description": "Who you are and what you do."
+      },
+      "offerings": {
+        "title": "Products & services",
+        "description": "What you sell."
+      },
+      "audience": {
+        "title": "Audience",
+        "description": "Who your posts are for."
+      },
+      "voice": {
+        "title": "Voice",
+        "description": "How your posts should sound."
+      },
+      "contentMix": {
+        "title": "Content plan",
+        "description": "What you post about, and how often."
+      },
+      "preferences": {
+        "title": "Preferences",
+        "description": "Hashtags, call to action and contact details."
+      }
+    },
+    "fields": {
+      "business": {
+        "name": "Name",
+        "type": "Type",
+        "industry": "Industry",
+        "description": "About"
+      },
+      "offerings": {
+        "items": "What you sell",
+        "priceRange": "Price range"
+      },
+      "audience": {
+        "description": "Who buys from you",
+        "locations": "Where they are",
+        "ageRange": "Age range",
+        "interests": "Interests"
+      },
+      "voice": {
+        "tone": "Tone",
+        "languages": "Languages",
+        "emojiUse": "Emoji",
+        "bannedWords": "Words to avoid"
+      },
+      "contentMix": {
+        "goals": "Goals",
+        "postsPerWeek": "Posts per week",
+        "pillars": "Content mix"
+      },
+      "preferences": {
+        "hashtags": "Hashtags",
+        "callToAction": "Call to action",
+        "contact": "Contact details"
+      }
+    },
+    "memories": {
+      "title": "Memories",
+      "subtitle": "Rules the AI must follow. Short and specific works best — \"never call our food cheap\".",
+      "empty": "Nothing remembered yet. Add a rule and every post will respect it.",
+      "addLabel": "Something to remember",
+      "addPlaceholder": "Friday posts should mention Jummah Mubarak",
+      "categoryLabel": "Kind",
+      "add": "Add",
+      "added": "Saved to your Brand Brain",
+      "removed": "Memory deleted",
+      "remove": "Delete memory: {content}"
+    },
+    "editSection": "Edit {section}"
   }
 }

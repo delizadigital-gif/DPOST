@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { signUpAndSignIn } from './helpers';
+import { signUpAndSignIn, skipOnboarding } from './helpers';
 
 /** Every section, with the heading it must show. */
 const SECTIONS = [
@@ -21,6 +21,7 @@ test.beforeEach(async ({ context, page }) => {
   const n = () => Math.floor(Math.random() * 254) + 1;
   await context.setExtraHTTPHeaders({ 'x-forwarded-for': `10.${n()}.${n()}.${n()}` });
   await signUpAndSignIn(page);
+  await skipOnboarding(page);
 });
 
 test('every section loads, with no error and no sideways scrolling', async ({ page }) => {

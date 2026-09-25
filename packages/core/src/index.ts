@@ -31,3 +31,50 @@ export { listRecentNotifications } from './services/notifications';
 export type { NotificationSummary, RecentNotifications } from './services/notifications';
 export { currentPeriodStart, getWorkspaceUsage } from './services/usage';
 export type { WorkspaceUsage } from './services/usage';
+
+export {
+  applyPatch,
+  BRAND_SECTIONS,
+  BRAND_SOURCES,
+  BUSINESS_TYPES,
+  EMOJI_USE,
+  emptyProfile,
+  GOALS,
+  HASHTAG_STYLES,
+  isBrandSection,
+  LANGUAGES,
+  parseProfile,
+  parseSection,
+  patchSchema,
+  SECTION_VALUES,
+  TONES,
+} from './brand/sections';
+export type {
+  BrandField,
+  BrandPatch,
+  BrandProfileData,
+  BrandSection,
+  BrandSectionName,
+  BrandSource,
+  BrandValues,
+} from './brand/sections';
+export { renderBrandCard, selectMemories } from './brand/card';
+export type { BrandCardInput, MemoryForCard } from './brand/card';
+export {
+  addBrandMemory,
+  completeOnboarding,
+  deleteBrandMemory,
+  getBrand,
+  getBrandCard,
+  getOnboardingStatus,
+  MAX_MEMORIES,
+  updateBrandSection,
+  updateBrandSections,
+} from './services/brand';
+export type {
+  AddMemoryInput,
+  BrandMemorySummary,
+  BrandOverview,
+  OnboardingStatus,
+  UpdateSectionResult,
+} from './services/brand';

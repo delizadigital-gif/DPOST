@@ -25,3 +25,14 @@ export async function signOut(page: Page, { desktop }: { desktop: boolean }) {
   await page.getByRole('button', { name: 'Account' }).click();
   await page.getByRole('menuitem', { name: 'Sign out' }).click();
 }
+
+/**
+ * Leaves the welcome wizard without answering it. Most suites care about
+ * the app behind onboarding, not onboarding itself, and a new account is
+ * sent there on its first visit.
+ */
+export async function skipOnboarding(page: Page) {
+  await page.goto('/welcome');
+  await page.getByRole('button', { name: 'Skip setup' }).click();
+  await page.waitForURL(/\/home$/);
+}

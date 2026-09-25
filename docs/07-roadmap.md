@@ -143,6 +143,18 @@ P17                                                                  ▓▓▓ �
 - **Testing:** each section's validation; skip paths; brand card snapshot; isolation tests.
 - **Done when:** a new user completes onboarding in under 3 minutes, and the Brand Brain shows and edits everything captured.
 
+> **Status (2026-09-26): done and verified locally.** 269 unit and integration tests and 53 end-to-end tests at three screen sizes, including accessibility checks on both the wizard and the Brand Brain.
+>
+> - **The brand shapes live in one place** (`packages/core/src/brand/sections.ts`): onboarding, the Brand Brain screen and the REST API all validate against the same six zod schemas, and the edit dialog builds its form from the same field list.
+> - **Every value carries its provenance** — _You_ · _From setup_ · _From your Page_ — and the rule that protects it: Page analysis (Phase 8) may fill a gap or correct itself, but never overwrites what a person typed. Tested both ways.
+> - **The brand card is a pure function**, not an LLM call, so prompts can be cached against `brand.version` and a bad post can be traced to the exact text the model was given. The Brand Brain shows that text verbatim under "What the AI reads".
+> - **Onboarding steps are Server Actions**, writing through the same service as `PATCH /api/v1/brand/:section` rather than a parallel `/onboarding/:step` endpoint — one validation path instead of two.
+> - **Step 4 says Facebook publishing isn't built yet** instead of showing a button that pretends to connect.
+> - **Only the business name is required.** Skipping is recorded as skipped, so nothing later claims the AI knows a business it doesn't.
+> - `workspaces.onboardingCompletedAt` decides the redirect; an abandoned setup resumes at the first unanswered step.
+> - A new account now lands in setup, so the "email confirmed" toast appears after setup rather than before it. The email-verification flow itself is unchanged.
+> - Fixed along the way: `@dpost/core` needed a client-safe `/brand` subpath (importing the main entry from a client component pulled ioredis into the browser bundle), and unset fields used a translucent grey that failed the 4.5:1 contrast rule.
+
 ## Phase 6 — AI foundation & single-post generation (~5 days)
 
 **Goal:** the first "wow". The AI writes on-brand posts in English, Bangla and Banglish.

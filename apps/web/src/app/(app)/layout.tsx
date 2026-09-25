@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { createContext, ensurePersonalWorkspace } from '@dpost/core';
+import { createContext, ensurePersonalWorkspace, getOnboardingStatus } from '@dpost/core';
 import { Logo } from '@/components/brand/logo';
 import { MobileNav } from '@/components/app/shell/mobile-nav';
 import { PageTransition } from '@/components/app/page-transition';
@@ -27,6 +27,11 @@ export default async function AppLayout({ children }: LayoutProps<'/'>) {
     emailVerified: session.emailVerified,
     source: 'web',
   });
+
+  // A new account starts in the welcome wizard. `getOnboardingStatus` is set
+  // whether the user answered or skipped, so nobody is sent back twice.
+  const { done } = await getOnboardingStatus(ctx);
+  if (!done) redirect('/welcome');
 
   const account = <UserMenu name={session.name} email={session.email} />;
 

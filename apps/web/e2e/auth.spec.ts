@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { expect, test } from '@playwright/test';
-import { signOut } from './helpers';
+import { signOut, skipOnboarding } from './helpers';
 import { waitForEmailLink } from './mailpit';
 
 const PASSWORD = 'saree shop 2026';
@@ -31,7 +31,11 @@ test('sign up, confirm email, sign out and log back in', async ({ page }, testIn
   await expect(page.getByText(email)).toBeVisible();
 
   // Before confirming, the home page asks for it.
+  // A brand-new account goes to setup first. The wizard itself is covered in
+  // onboarding.spec.ts, so skip it and carry on with the email flow.
   await page.getByRole('link', { name: /confirm later/i }).click();
+  await expect(page).toHaveURL(/\/welcome\/business$/);
+  await skipOnboarding(page);
   await expect(page.getByRole('heading', { name: 'Confirm your email' })).toBeVisible();
 
   // Confirm via the real email
@@ -85,7 +89,8 @@ test('reset a forgotten password', async ({ page }) => {
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: true }).fill('a brand new password');
   await page.getByRole('button', { name: 'Log in' }).click();
-  await expect(page).toHaveURL(/\/home$/);
+  // This account never went through setup, so logging in lands there.
+  await expect(page).toHaveURL(/\/welcome\/business$/);
 });
 
 test('legal pages are public', async ({ page }) => {

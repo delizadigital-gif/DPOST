@@ -59,12 +59,13 @@ export const POST = route(
 
 ### Workspace & account
 
-| Method | Path                       | Purpose                                            |
-| ------ | -------------------------- | -------------------------------------------------- |
-| GET    | `/api/v1/me`               | User, active workspace, role, plan, usage summary  |
-| PATCH  | `/api/v1/me`               | Name, UI locale                                    |
-| PATCH  | `/api/v1/workspace`        | Name, timezone, AI defaults, notification defaults |
-| POST   | `/api/v1/onboarding/:step` | Save step (business, audience, voice, complete)    |
+| Method | Path                | Purpose                                            |
+| ------ | ------------------- | -------------------------------------------------- |
+| GET    | `/api/v1/me`        | User, active workspace, role, plan, usage summary  |
+| PATCH  | `/api/v1/me`        | Name, UI locale                                    |
+| PATCH  | `/api/v1/workspace` | Name, timezone, AI defaults, notification defaults |
+
+**Onboarding steps are Server Actions, not REST** (Phase 5). Each step saves through `updateBrandSection`, the same service `PATCH /api/v1/brand/:section` calls, so there is one validation path rather than two. A parallel `POST /api/v1/onboarding/:step` would have had no caller other than the wizard itself.
 
 ### Social connections
 
