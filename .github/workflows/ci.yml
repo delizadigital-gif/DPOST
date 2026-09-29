@@ -69,6 +69,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://dpost:dpost@localhost:5432/dpost_test
       REDIS_URL: redis://localhost:6379/0
+      # The server reads this to tell a local test run from a deployed site.
+      APP_URL: http://localhost:3000
       # Test-only values; production secrets live in the host's settings.
       BETTER_AUTH_SECRET: ci-only-secret-that-is-at-least-32-characters
       SMTP_URL: smtp://localhost:1025
