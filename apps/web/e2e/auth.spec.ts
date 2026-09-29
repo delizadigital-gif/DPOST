@@ -103,3 +103,25 @@ test('legal pages are public', async ({ page }) => {
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(title);
   }
 });
+
+/**
+ * The panel beside the sign-in form is always a light card on a gradient, in
+ * both themes. It is `aria-hidden`, so axe skips it: this checks the colour
+ * itself, after a dark-mode bug made the text white on white.
+ */
+test('the sign-in panel stays readable in dark mode', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'the panel only shows on laptops and up');
+
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.goto('/login');
+
+  const card = page.locator('aside li').first();
+  await expect(card).toBeVisible();
+  const colour = await card.evaluate((element) => getComputedStyle(element).color);
+  const [red, green, blue] = colour.match(/\d+/g)!.map(Number) as [number, number, number];
+
+  // Relative luminance: the text on these cards must stay dark whatever the
+  // rest of the interface is doing.
+  const luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+  expect(luminance, `text colour on the panel card was ${colour}`).toBeLessThan(0.35);
+});

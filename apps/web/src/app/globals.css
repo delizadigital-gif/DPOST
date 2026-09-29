@@ -37,6 +37,8 @@
   --color-ink-900: var(--ink-900);
   --color-ink-600: var(--ink-600);
   --color-ink-400: var(--ink-400);
+  --color-on-light: var(--on-light);
+  --color-on-light-muted: var(--on-light-muted);
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
 
@@ -106,6 +108,13 @@
   --ink-900: #14121f;
   --ink-600: #57546a;
   --ink-400: #8e8aa3;
+
+  /* Ink for surfaces that stay white in both themes, such as the cards on
+     the brand gradient. Deliberately not redefined in dark mode: text that
+     followed the theme there would turn white on white. */
+  --on-light: #14121f;
+  --on-light-muted: #57546a;
+
   --canvas: #faf9fd;
   --surface: #ffffff;
 

@@ -61,7 +61,7 @@ function BrandPanel() {
         </p>
 
         <div className="relative space-y-4">
-          <div className="ml-auto w-fit max-w-sm rounded-2xl rounded-br-md bg-white/95 px-4 py-3 text-sm text-ink-900 shadow-float">
+          <div className="ml-auto w-fit max-w-sm rounded-2xl rounded-br-md bg-white/95 px-4 py-3 text-sm text-on-light shadow-float">
             Promote my Eid collection this week, 3 posts
           </div>
           <div className="w-fit rounded-2xl rounded-bl-md bg-white/15 px-4 py-3 text-sm backdrop-blur">
@@ -73,11 +73,11 @@ function BrandPanel() {
             {posts.map((post) => (
               <li
                 key={post.day}
-                className="flex items-center gap-3 rounded-xl bg-white/95 p-3 text-sm text-ink-900 shadow-float"
+                className="flex items-center gap-3 rounded-xl bg-white/95 p-3 text-sm text-on-light shadow-float"
               >
                 <span className={`size-9 shrink-0 rounded-lg ${post.tone}`} />
                 <span className="min-w-0 flex-1 truncate">{post.text}</span>
-                <span className="inline-flex shrink-0 items-center gap-1 text-xs text-ink-600">
+                <span className="inline-flex shrink-0 items-center gap-1 text-xs text-on-light-muted">
                   <CalendarCheck className="size-3.5" />
                   {post.day} {post.time}
                 </span>
