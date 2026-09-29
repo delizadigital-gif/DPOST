@@ -78,3 +78,58 @@ export type {
   OnboardingStatus,
   UpdateSectionResult,
 } from './services/brand';
+
+export { aiIsAvailable, getModel, setModelOverride } from './ai/models';
+export type { ModelRole, ResolvedModel } from './ai/models';
+export { createStubModel } from './ai/stub';
+export {
+  CONTENT_LANGUAGES,
+  CONTENT_TYPES,
+  MAX_DRAFTS_PER_REQUEST,
+  normaliseDraft,
+  normaliseHashtags,
+  postDraftSchema,
+  postDraftsSchema,
+  rewriteResultSchema,
+} from './ai/schemas';
+export type { ContentLanguageCode, ContentTypeCode, PostDraft, RewriteResult } from './ai/schemas';
+export { checkDraft, languageMatches, opener, similarity, unverifiedDetails } from './ai/quality';
+export type { QualityCode, QualityContext, QualityIssue, QualityReport } from './ai/quality';
+export {
+  assertCanUse,
+  estimateCostMicros,
+  getQuota,
+  MODEL_PRICING,
+  QUOTA_METRICS,
+  recordAiUsage,
+  recordQuotaUsage,
+  withUsage,
+} from './ai/usage';
+export type { QuotaMetric, QuotaState, UsageRecord } from './ai/usage';
+export { REWRITE_ACTIONS } from './ai/prompts/post-writer.v1';
+export type { RewriteAction } from './ai/prompts/post-writer.v1';
+export { buildPostWriterPrompt, buildRewritePrompt } from './ai/prompts/post-writer.v1';
+export { generateDrafts, rewriteDraft } from './ai/pipelines/post-writer';
+export type {
+  GeneratedDraft,
+  GenerateDraftsInput,
+  GenerateDraftsResult,
+  GenerationMeta,
+  RewriteDraftInput,
+  RewriteDraftResult,
+} from './ai/pipelines/post-writer';
+export {
+  FACEBOOK_MAX_LENGTH,
+  MAX_HASHTAGS,
+  RECOMMENDED_HASHTAGS,
+  RECOMMENDED_MAX_LENGTH,
+  SEE_MORE_LENGTH,
+  validatePost,
+} from './social/facebook/validate';
+export type {
+  PostForValidation,
+  ValidationIssue,
+  ValidationResult,
+} from './social/facebook/validate';
+export { createPost, getPost, listRecentPosts, updatePost } from './services/posts';
+export type { CreatePostInput, PostSummary, UpdatePostInput } from './services/posts';

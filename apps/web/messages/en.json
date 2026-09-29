@@ -136,7 +136,8 @@
     "language": {
       "en": "English",
       "bn": "বাংলা (Bangla)",
-      "banglish": "Banglish"
+      "banglish": "Banglish",
+      "mixed": "Bangla + English"
     },
     "emoji": {
       "none": "No emoji",
@@ -394,5 +395,53 @@
       "remove": "Delete memory: {content}"
     },
     "editSection": "Edit {section}"
+  },
+  "composer": {
+    "askTitle": "Ask DPOST to write",
+    "brandEmpty": "DPOST knows almost nothing about your business yet, so these posts will be generic. Fill in your Brand Brain first.",
+    "aiUnavailable": "AI writing isn't switched on for this server yet. You can still write and save posts yourself.",
+    "requestLabel": "What should the posts be about?",
+    "requestHint": "Leave it empty and DPOST will choose something that suits your business.",
+    "requestPlaceholder": "Promote our Eid collection, mention free delivery in Dhaka",
+    "languageLabel": "Language",
+    "countLabel": "How many",
+    "write": "Write with AI",
+    "writing": "Writing…",
+    "working": "Working…",
+    "quotaLeft": "{remaining} of {limit} AI posts left this month",
+    "quotaUnlimited": "Unlimited AI posts on your plan",
+    "quotaNote": "writing and each ✦ edit use one",
+    "stubNotice": "Test mode: this text came from a built-in stub, not from an AI model. It is here so the app can be tested without an API key.",
+    "editorTitle": "Your post",
+    "bodyLabel": "Post text",
+    "bodyCount": "{count} characters",
+    "bodyPlaceholder": "Write your post, or let DPOST draft one above.",
+    "hashtagsLabel": "Hashtags",
+    "hashtagsHint": "Four is plenty on Facebook. Press Enter after each one.",
+    "hashtagsPlaceholder": "homemade, dhaka…",
+    "ctaLabel": "Call to action",
+    "ctaPlaceholder": "Inbox us to order",
+    "previewTitle": "How it will look",
+    "saveDraft": "Save draft",
+    "saving": "Saving…",
+    "saved": "Draft saved",
+    "noScheduling": "Scheduling arrives when Facebook publishing does.",
+    "actions": {
+      "improve": "Improve",
+      "shorten": "Shorten",
+      "lengthen": "Expand",
+      "translate": "Translate",
+      "hashtags": "Hashtags",
+      "cta": "Add CTA"
+    },
+    "preview": {
+      "justNow": "Just now",
+      "seeMore": "See more",
+      "empty": "Your post will appear here as you write.",
+      "imageSuggested": "This post would work better with a photo",
+      "like": "Like",
+      "comment": "Comment",
+      "share": "Share"
+    }
   }
 }

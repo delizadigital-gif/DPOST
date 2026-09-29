@@ -164,6 +164,19 @@ P17                                                                  ▓▓▓ �
 - **Testing:** prompts with a mocked LLM (MSW) → pipeline logic; quality-gate unit tests (duplicates, language detection); quota exceeded → 402; the golden-set script (manual run, real API) for 10 briefs.
 - **Done when:** a user can generate 5 on-brand Bangla posts in the composer, edit one and save it as a draft, and usage appears in the DB.
 
+> **Status (2026-09-29): done and verified locally.** 329 unit and integration tests and 68 end-to-end tests at three screen sizes.
+>
+> - **Two model slots, not model names.** Features ask for `smart` or `fast`; which model fills each slot is an environment variable (`LLM_MODEL_SMART`, `LLM_MODEL_FAST`), so changing model never touches feature code.
+> - **Prompts are versioned modules** assembled most-stable-first — system rules, platform rules, brand card, task, avoid list, request — so a provider can cache the front of every prompt, and each post can record the prompt version that produced it.
+> - **The quality gate is plain code**, not another model: platform limits, language by script detection, banned phrases, near-duplicates (word-trigram Jaccard ≥ 0.6), repeated openers, and prices or phone numbers that appear nowhere in the Brand Brain. A blocked draft is written again once; after that it is kept **with its warnings shown**, because a flawed draft the owner can fix beats one that vanished.
+> - **Quota before the call, metering after it.** A failed generation never costs someone part of their monthly allowance, and every call writes an `ai_usage_events` row with tokens and an estimated cost.
+> - **A rewrite costs the same as a post**, and the composer says so, because both are a model call.
+> - **Without an API key the AI features switch off** and say so, instead of failing inside a request. `AI_PROVIDER=stub` swaps in a deterministic fake for tests and CI; it is refused in production, and everything it produces is labelled in the interface as not having come from a model.
+> - **Prices in `MODEL_PRICING` are estimates for reporting only.** They must be checked against the provider's current pricing before they inform a plan price (Phase 15).
+> - `pnpm ai:golden` runs ten briefs against the real model and prints each post with the gate's verdict and the run's cost — the manual check after a prompt change.
+> - Scheduling is deliberately absent from the composer: there is nowhere to publish until Phase 8, so the footer says "Save draft" and means it.
+> - The dev-server launch config now goes through `corepack pnpm`: a Device Guard policy on the development machine blocks the globally installed `pnpm.exe`.
+
 ## Phase 7 — Content management & calendar (~5 days)
 
 **Goal:** see, review and organize all content.

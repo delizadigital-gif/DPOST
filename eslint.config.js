@@ -23,4 +23,9 @@ export default defineConfig([
       'no-console': 'error',
     },
   },
+  {
+    // Command-line tools: printing to the terminal is their whole job.
+    files: ['**/scripts/**/*.ts'],
+    rules: { 'no-console': 'off' },
+  },
 ]);

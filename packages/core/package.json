@@ -6,15 +6,19 @@
   "exports": {
     ".": "./src/index.ts",
     "./brand": "./src/brand/index.ts",
+    "./content": "./src/content.ts",
     "./testing": "./src/testing/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "golden": "tsx scripts/golden-set.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.63",
     "@dpost/config": "workspace:*",
     "@dpost/db": "workspace:*",
+    "ai": "^7.0.114",
     "better-auth": "1.7.5",
     "ioredis": "^6.0.0",
     "nodemailer": "^10.0.10",
@@ -22,6 +26,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/nodemailer": "^8.0.2"
+    "@types/nodemailer": "^8.0.2",
+    "tsx": "^4.23.13"
   }
 }

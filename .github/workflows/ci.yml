@@ -75,6 +75,9 @@ jobs:
       EMAIL_FROM: DPOST <no-reply@dpost.local>
       CONTACT_EMAIL: hello@example.test
       MAILPIT_URL: http://localhost:8025
+      # No API key in CI: the stub provider exercises the whole pipeline
+      # (prompt, quality gate, metering, quotas) without calling a model.
+      AI_PROVIDER: stub
     steps:
       - uses: actions/checkout@v4
 
