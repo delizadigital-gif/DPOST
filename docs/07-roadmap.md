@@ -175,7 +175,7 @@ P17                                                                  ▓▓▓ �
 > - **Prices in `MODEL_PRICING` are estimates for reporting only.** They must be checked against the provider's current pricing before they inform a plan price (Phase 15).
 > - `pnpm ai:golden` runs ten briefs against the real model and prints each post with the gate's verdict and the run's cost — the manual check after a prompt change.
 > - Scheduling is deliberately absent from the composer: there is nowhere to publish until Phase 8, so the footer says "Save draft" and means it.
-> - The dev-server launch config now goes through `corepack pnpm`: a Device Guard policy on the development machine blocks the globally installed `pnpm.exe`.
+> - The dev server is launched by `scripts/dev-web.mjs` (node, no pnpm): a Device Guard policy on the development machine blocks the globally installed `pnpm.exe`. Everything else still runs through pnpm, via `corepack pnpm` on that machine.
 
 ## Phase 7 — Content management & calendar (~5 days)
 
