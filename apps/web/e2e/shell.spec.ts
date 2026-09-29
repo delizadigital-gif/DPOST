@@ -80,6 +80,10 @@ test('the theme can be switched to dark and sticks', async ({ page }, testInfo) 
 });
 
 test('the shell has no serious accessibility violations', async ({ page }) => {
+  // Without this, axe can measure a page mid fade-in and report every line
+  // of text as low contrast, because it really is still semi-transparent.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+
   for (const path of ['/home', '/calendar', '/settings']) {
     await page.goto(path);
     const results = await new AxeBuilder({ page })

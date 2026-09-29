@@ -27,23 +27,47 @@ export const aiEnvSchema = z
     /**
      * `stub` replaces the provider with a deterministic fake for tests and
      * end-to-end runs, so the whole pipeline (quality gate, metering,
-     * quotas, UI) can be exercised without an API key or a bill.
+     * quotas, interface) can be exercised without an API key or a bill.
      *
-     * It is refused in production, and anything it produces is labelled as
-     * a stub in the API response and in the interface — a person must never
-     * mistake it for something a model wrote.
+     * Anything it produces is labelled as a stub in the API response and in
+     * the interface — a person must never mistake it for something a model
+     * wrote — and the rule below keeps it away from anyone real.
      */
     AI_PROVIDER: z.enum(['anthropic', 'stub']).default('anthropic'),
+
+    /** Read only to decide whether this server can be reached by real users. */
+    APP_URL: z.string().optional(),
   })
   .superRefine((env, ctx) => {
-    if (env.NODE_ENV === 'production' && env.AI_PROVIDER === 'stub') {
+    /**
+     * The stub is allowed only where nobody real can see it: a development
+     * build, or a production build served on localhost — which is exactly
+     * what the end-to-end tests run against, since they exercise the real
+     * deployment artifact.
+     *
+     * Keying this on the address rather than on `NODE_ENV` alone is the
+     * point: `NODE_ENV` says how the code was built, and the address says
+     * who can reach it.
+     */
+    if (env.AI_PROVIDER === 'stub' && env.NODE_ENV === 'production' && !isLocal(env.APP_URL)) {
       ctx.addIssue({
         code: 'custom',
         path: ['AI_PROVIDER'],
-        message: 'the stub provider must never be used in production',
+        message: 'the stub provider must never serve a deployed site',
       });
     }
   });
+
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0']);
+
+function isLocal(appUrl: string | undefined): boolean {
+  if (!appUrl) return false;
+  try {
+    return LOCAL_HOSTS.has(new URL(appUrl).hostname.replace(/^\[|\]$/gu, ''));
+  } catch {
+    return false;
+  }
+}
 
 export type AiEnv = z.infer<typeof aiEnvSchema>;
 

@@ -84,6 +84,7 @@ test('an empty post cannot be saved', async ({ page }) => {
 });
 
 test('the composer has no serious accessibility violations', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/create');
   await page.getByLabel('Post text').fill('Fresh batch this morning.');
   const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();

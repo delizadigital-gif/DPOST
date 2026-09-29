@@ -29,9 +29,28 @@ describe('AI settings', () => {
     expect(isAiConfigured(env)).toBe(true);
   });
 
-  it('refuses the stub provider in production', () => {
+  it('allows the stub in a production build served on localhost, as the e2e tests are', () => {
+    const env = parseAiEnv({
+      NODE_ENV: 'production',
+      AI_PROVIDER: 'stub',
+      APP_URL: 'http://localhost:3000',
+    });
+    expect(env.AI_PROVIDER).toBe('stub');
+  });
+
+  it('refuses the stub provider on a deployed site', () => {
+    expect(() =>
+      parseAiEnv({
+        NODE_ENV: 'production',
+        AI_PROVIDER: 'stub',
+        APP_URL: 'https://web-production-6737e.up.railway.app',
+      }),
+    ).toThrow(/never serve a deployed site/);
+  });
+
+  it('refuses the stub in production when there is no address to judge by', () => {
     expect(() => parseAiEnv({ NODE_ENV: 'production', AI_PROVIDER: 'stub' })).toThrow(
-      /never be used in production/,
+      /never serve a deployed site/,
     );
   });
 });

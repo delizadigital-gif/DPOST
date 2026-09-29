@@ -161,6 +161,8 @@ test('the Brand Brain edits what setup captured', async ({ page }) => {
 });
 
 test('setup and the Brand Brain are accessible', async ({ page }) => {
+  // Page transitions would otherwise be measured mid-fade (see shell.spec.ts).
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/welcome/business');
   const wizard = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']).analyze();
   expect(wizard.violations.filter((violation) => violation.impact === 'serious')).toEqual([]);
