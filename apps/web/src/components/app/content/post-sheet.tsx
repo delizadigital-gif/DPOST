@@ -19,6 +19,7 @@ import {
 import { Field } from '@/components/app/form/field';
 import { TagInput } from '@/components/app/form/tag-input';
 import { PostPreview } from '@/components/app/composer/preview';
+import { SchedulePanel, type ChannelOption } from '@/components/app/content/schedule-panel';
 import { StatusBadge } from '@/components/app/status-badge';
 import { apiDelete, apiGet, apiPatch, apiPost } from '@/lib/api/client';
 import type { PostListItem } from '@/lib/posts';
@@ -42,6 +43,8 @@ interface Revision {
 interface PostSheetProps {
   post: PostListItem | null;
   pageName: string;
+  /** Connected Pages, so scheduling is only offered when it is possible. */
+  channels?: ChannelOption[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Called after any change, so the list behind the sheet can catch up. */
@@ -61,6 +64,7 @@ export function PostSheet({ post, ...props }: PostSheetProps) {
 function PostSheetContent({
   post,
   pageName,
+  channels = [],
   open,
   onOpenChange,
   onChanged,
@@ -321,6 +325,8 @@ function PostSheetContent({
               {t('delete')}
             </Button>
           </div>
+
+          <SchedulePanel postId={post.id} status={status} channels={channels} />
 
           <div className="space-y-2 rounded-xl border border-border p-3">
             <label htmlFor="regenerate-instruction" className="text-sm font-medium">

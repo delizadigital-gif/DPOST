@@ -33,9 +33,11 @@ const PAGE_SIZE = 25;
 export function ContentList({
   initial,
   pageName,
+  channels = [],
 }: {
   initial: PostPageResponse;
   pageName: string;
+  channels?: { id: string; name: string; status: string }[];
 }) {
   const t = useTranslations('content');
   const router = useRouter();
@@ -272,6 +274,7 @@ export function ContentList({
       <PostSheet
         post={open}
         pageName={pageName}
+        channels={channels}
         open={open !== null}
         onOpenChange={(next) => !next && setOpen(null)}
         onChanged={() => void load()}

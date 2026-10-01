@@ -17,7 +17,12 @@ describe('startWorker', () => {
   it('writes an expiring heartbeat immediately and on every interval', async () => {
     vi.useFakeTimers();
     const redis = { set: vi.fn().mockResolvedValue('OK') };
-    const worker = startWorker({ logger: fakeLogger(), redis, heartbeatIntervalMs: 1_000 });
+    const worker = startWorker({
+      logger: fakeLogger(),
+      redis,
+      heartbeatIntervalMs: 1_000,
+      queues: false,
+    });
 
     await vi.advanceTimersByTimeAsync(3_000);
     expect(redis.set).toHaveBeenCalledTimes(4);
@@ -32,7 +37,7 @@ describe('startWorker', () => {
     vi.useFakeTimers();
     const logger = fakeLogger();
     const redis = { set: vi.fn().mockRejectedValue(new Error('ECONNREFUSED')) };
-    const worker = startWorker({ logger, redis, heartbeatIntervalMs: 1_000 });
+    const worker = startWorker({ logger, redis, heartbeatIntervalMs: 1_000, queues: false });
 
     await vi.advanceTimersByTimeAsync(2_000);
     expect(redis.set).toHaveBeenCalledTimes(3);

@@ -213,6 +213,26 @@ P17                                                                  ▓▓▓ �
 - **Done when:** 20 posts scheduled across a day on the test Page all publish within 60 s of their time; a revoked token turns the channel "Needs reconnect" with notification and email; killing the worker mid-run loses nothing.
 - **➜ Then immediately:** record the App Review screencast and submit for `pages_show_list`, `pages_manage_posts`, `pages_read_engagement`, `read_insights` (+ `pages_read_user_content` if needed for analysis). See [08](08-facebook-integration.md).
 
+> **Status (2026-10-02): built and tested; not yet proven against the live Graph API.** 460 unit and integration tests and 114 end-to-end tests, the end-to-end suite run against the production build.
+>
+> **What is built and verified**
+>
+> - **The whole publishing path**, tested against recorded Graph API responses with a fake `fetch`: text posts, link posts, one photo, several photos, and every documented failure — expired token (190), lost permission (200), throttling (4/17/32/613 and HTTP 429 with `Retry-After`), server errors, and content Facebook refuses.
+> - **Exactly once.** The claim is a single conditional `UPDATE` (`scheduled → publishing` for one `jobVersion`); two workers racing the same job produce one call to Facebook and one `skipped`. Rescheduling bumps the version, which changes the queue job's id and leaves any job already in flight inert.
+> - **Nothing is lost if Redis is.** The database is the truth: a reconcile sweep every five minutes re-queues anything overdue and releases anything stuck mid-publish by a worker that died.
+> - **Failures are classified, not guessed at.** `AUTH` stops and marks the Page as needing reconnection (with an email); `RATE_LIMITED` and `TRANSIENT` are retried with backoff; `PERMANENT` stops and says what Facebook said, in Facebook's own words where it gives them.
+> - **Tokens stay secret.** They are encrypted at rest with the workspace bound into the encryption context, travel in an `Authorization` header rather than a URL, and a test asserts that no attempt record or publication row ever contains one.
+> - **Meta's callbacks verify their signature** in constant time before deleting anything, and answer politely to anything unsigned without revealing whether a Facebook id is known to us.
+> - **The interface says what Facebook allows**: Pages only, never personal profiles or Groups, and only people with a role on our Meta app until the app is reviewed.
+>
+> **What is not proven yet, and why**
+>
+> - **No live post has been published.** That needs a Meta app (`META_APP_ID`, `META_APP_SECRET`) and a Page to test against. Everything above is tested against recorded responses, which catches our logic but cannot catch a field Meta renamed. The "20 posts across a day" test in the Done-when line is a **live** test and remains outstanding.
+> - **`META_GRAPH_VERSION` is pinned to `v23.0`, which must be checked against Meta's current changelog** before the first live run. It is an environment variable precisely so it can be moved without a deploy.
+> - **App Review needs business verification**, which needs the trade licence (docs/08 §4.1). Until then DPOST can publish only for people with a role on the Meta app — enough for the owner's own Pages and a hand-held beta.
+>
+> **Also in this phase:** the worker now runs the publishing queue (concurrency 5, three attempts with exponential backoff), a daily token-health check that emails before a token fails at 8pm rather than after, and a clean shutdown that lets in-flight posts finish.
+
 ## Phase 9 — Media library & AI images (~4 days)
 
 - **Features:** R2 presigned uploads; processing job (magic-byte sniffing, sharp re-encode, EXIF strip, thumbs); library grid, search, filters, detail sheet, soft delete (blocked if scheduled); media picker in composer; `ImageProvider` + first adapter; image prompt writer; satori text overlay with Bengali fonts; `ai-image` queue; Facebook photo publishing using media.

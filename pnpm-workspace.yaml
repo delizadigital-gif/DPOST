@@ -14,3 +14,6 @@ allowBuilds:
   # optional platform packages, so their install scripts aren't needed.
   '@parcel/watcher': false
   '@swc/core': false
+  # BullMQ pulls this in as an optional native accelerator for msgpackr.
+  # The pure-JavaScript path it falls back to is the one we rely on.
+  msgpackr-extract: false

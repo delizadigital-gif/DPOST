@@ -13,7 +13,8 @@
   "dependencies": {
     "@dpost/config": "workspace:*",
     "@dpost/core": "workspace:*",
-    "@dpost/db": "workspace:*"
+    "@dpost/db": "workspace:*",
+    "bullmq": "^6.3.10"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

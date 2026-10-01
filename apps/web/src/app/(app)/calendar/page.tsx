@@ -6,6 +6,7 @@ import {
   calendarRange,
   getBrand,
   groupByLocalDay,
+  listChannels,
   listPosts,
   listPostsInRange,
   localTimeLabel,
@@ -55,10 +56,11 @@ export default async function CalendarPage({ searchParams }: PageProps<'/calenda
   const anchor = parseAnchor(typeof params.on === 'string' ? params.on : undefined, today);
   const range = calendarRange({ view, anchor, timeZone });
 
-  const [planned, unplanned, { profile }] = await Promise.all([
+  const [planned, unplanned, { profile }, channels] = await Promise.all([
     listPostsInRange(ctx, range.from, range.to),
     listPosts(ctx, { scheduled: false, limit: 10 }),
     getBrand(ctx),
+    listChannels(ctx),
   ]);
 
   const t = await getTranslations('calendar');
@@ -145,6 +147,11 @@ export default async function CalendarPage({ searchParams }: PageProps<'/calenda
         pageName={profile.business.name?.value ?? workspace?.name ?? 'DPOST'}
         weekdayNames={weekdayNames}
         unscheduled={JSON.parse(JSON.stringify(unplanned.posts)) as PostListItem[]}
+        channels={channels.map((channel) => ({
+          id: channel.id,
+          name: channel.name,
+          status: channel.status,
+        }))}
       />
     </>
   );

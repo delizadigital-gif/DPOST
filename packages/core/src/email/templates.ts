@@ -102,3 +102,26 @@ export function resetPasswordMessage(to: string, name: string, url: string): Ema
       "This link expires in 30 minutes and works once. If you didn't ask for this, you can ignore this email: your password won't change.",
   });
 }
+
+export interface NotificationEmailInput {
+  name: string;
+  title: string;
+  body: string;
+  actionUrl: string;
+}
+
+/**
+ * The email behind a notification that needs acting on — a post that failed,
+ * a Page that stopped working. Successes stay in the app: an inbox full of
+ * "it worked" is how people learn to ignore the one that says it didn't.
+ */
+export function notificationEmail(input: NotificationEmailInput): Omit<EmailMessage, 'to'> {
+  const full = message('', input.title, {
+    preheader: input.body.slice(0, 120),
+    heading: input.title,
+    paragraphs: [`Hi ${input.name},`, input.body].filter(Boolean),
+    action: { label: 'Open DPOST', url: input.actionUrl },
+    footnote: 'You are getting this because something in your workspace needs attention.',
+  });
+  return { subject: full.subject, html: full.html, text: full.text };
+}

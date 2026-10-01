@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { MessageSquareText } from 'lucide-react';
-import { getBrand, listPosts } from '@dpost/core';
+import { getBrand, listChannels, listPosts } from '@dpost/core';
 import { ContentList } from '@/components/app/content/content-list';
 import { EmptyState } from '@/components/app/empty-state';
 import { PageHeader } from '@/components/app/page-header';
@@ -22,10 +22,11 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function ContentPage() {
   const ctx = await getPageContext();
-  const [page, { profile }, workspace] = await Promise.all([
+  const [page, { profile }, workspace, channels] = await Promise.all([
     listPosts(ctx, { limit: 25 }),
     getBrand(ctx),
     ctx.db.workspace.findUnique({ where: { id: ctx.workspaceId }, select: { name: true } }),
+    listChannels(ctx),
   ]);
   const t = await getTranslations('pages.content');
 
@@ -51,6 +52,11 @@ export default async function ContentPage() {
         <ContentList
           initial={initial}
           pageName={profile.business.name?.value ?? workspace?.name ?? 'DPOST'}
+          channels={channels.map((channel) => ({
+            id: channel.id,
+            name: channel.name,
+            status: channel.status,
+          }))}
         />
       )}
     </>

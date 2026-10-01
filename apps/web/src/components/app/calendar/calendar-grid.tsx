@@ -32,6 +32,8 @@ export interface CalendarGridProps {
   weekdayNames: string[];
   /** Posts with no date yet, shown in a tray under the grid. */
   unscheduled: PostListItem[];
+  /** Connected Pages, for scheduling from the sheet. */
+  channels?: { id: string; name: string; status: string }[];
 }
 
 export function CalendarGrid({
@@ -45,6 +47,7 @@ export function CalendarGrid({
   pageName,
   weekdayNames,
   unscheduled,
+  channels = [],
 }: CalendarGridProps) {
   const t = useTranslations('calendar');
   const [open, setOpen] = useState<PostListItem | null>(null);
@@ -189,6 +192,7 @@ export function CalendarGrid({
       <PostSheet
         post={open}
         pageName={pageName}
+        channels={channels}
         open={open !== null}
         onOpenChange={(next) => !next && setOpen(null)}
         onChanged={() => undefined}

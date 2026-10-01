@@ -76,7 +76,7 @@
       "title": "Channels",
       "subtitle": "The social accounts DPOST publishes to.",
       "emptyTitle": "No channels connected",
-      "emptyBody": "Connect a Facebook Page to let DPOST publish for you. Instagram and others come later."
+      "emptyBody": "Connect a Facebook Page and DPOST can publish your approved posts at the times you choose."
     },
     "media": {
       "title": "Media",
@@ -534,5 +534,61 @@
     "nothingPlanned": "Nothing planned in this period yet.",
     "unscheduledTitle": "{count, plural, =1 {1 post with no date} other {# posts with no date}}",
     "unscheduledBody": "These are written but not placed on a day. Open one to give it a date, ready for when publishing arrives."
+  },
+  "channels": {
+    "connectFacebook": "Connect a Facebook Page",
+    "connectAnother": "Connect another Page",
+    "connecting": "Connecting…",
+    "connected": "{count, plural, =1 {1 Page connected} other {# Pages connected}}",
+    "connectSelected": "{count, plural, =0 {Choose a Page} =1 {Connect 1 Page} other {Connect # Pages}}",
+    "connectedBadge": "Connected",
+    "cancel": "Cancel",
+    "disconnect": "Disconnect",
+    "disconnecting": "Disconnecting…",
+    "disconnected": "{name} disconnected",
+    "reconnect": "Reconnect",
+    "needsReconnect": "Needs reconnecting",
+    "facebookPage": "Facebook Page",
+    "via": "through {name}",
+    "pickTitle": "Choose the Pages DPOST may post to",
+    "pickBody": "Only the Pages you tick here. You can change this at any time, and nothing is posted without your approval.",
+    "verifyFirst": "Confirm your email address first — Facebook connections need a confirmed account.",
+    "notConfigured": "Connecting a Facebook Page isn't set up on this server yet. It needs a Meta app, which is being arranged.",
+    "noticeCancelled": "You cancelled the connection on Facebook. Nothing was changed.",
+    "noticeExpired": "That took too long and the connection link expired. Please try again.",
+    "noticeInvalid": "Facebook sent us back something we could not read. Please try again.",
+    "noticeMismatch": "That connection was started by a different account, so nothing was connected.",
+    "noticeFailed": "We could not finish connecting to Facebook. Please try again in a moment.",
+    "noticeNoPages": "Facebook did not offer any Pages you can post to. You need to be an admin or editor of a Page, and personal profiles cannot be used.",
+    "limitsTitle": "What Facebook allows",
+    "limitPagesOnly": "Facebook only lets apps post to Pages. Personal profiles cannot be posted to by any third-party app, including DPOST.",
+    "limitGroups": "Groups are not available either: Facebook closed that part of its API to apps.",
+    "limitReview": "Until Meta has reviewed DPOST, only people with a role on our Meta app can connect a Page. That review needs a verified business, which is in progress."
+  },
+  "schedule": {
+    "title": "Publishing",
+    "pageLabel": "Page",
+    "whenLabel": "When",
+    "schedule": "Schedule",
+    "scheduling": "Scheduling…",
+    "scheduled": "Scheduled",
+    "publishNow": "Publish now",
+    "publishing": "Sending…",
+    "queued": "Queued to publish now",
+    "cancel": "Cancel",
+    "cancelled": "Taken out of the queue",
+    "tryAgain": "Try again",
+    "retried": "Queued to try again",
+    "viewOnFacebook": "View on Facebook",
+    "approveFirst": "Approve this post before scheduling it.",
+    "noChannels": "No Facebook Page is connected yet.",
+    "connectAPage": "Connect one",
+    "status": {
+      "scheduled": "Scheduled",
+      "publishing": "Publishing",
+      "published": "Published",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    }
   }
 }

@@ -184,3 +184,62 @@ export {
 export type { CalendarRange, CalendarView, DayKey, RangeOptions } from './content/calendar';
 export { regeneratePost } from './services/post-ai';
 export type { RegeneratePostResult } from './services/post-ai';
+
+export {
+  checkChannelHealth,
+  completeFacebookConnection,
+  connectPages,
+  consumeConnectionState,
+  decryptChannelToken,
+  disconnectChannel,
+  listAvailablePages,
+  listChannels,
+  markChannelNeedsReconnect,
+  startFacebookConnection,
+} from './services/channels';
+export type { ChannelSummary, ConnectedAccount, ConnectionStart } from './services/channels';
+export {
+  listPublications,
+  listUpcoming,
+  MIN_LEAD_TIME_MS,
+  publishNow,
+  retryPublication,
+  schedulePost,
+  unschedulePost,
+} from './services/scheduling';
+export type { PublicationSummary, ScheduleInput } from './services/scheduling';
+export { reconcilePublications, runPublication } from './services/publishing';
+export type { PublishOutcome, RunPublicationInput } from './services/publishing';
+export { notify } from './services/notifications';
+export type { NotifyInput } from './services/notifications';
+export {
+  closePublishQueue,
+  enqueuePublish,
+  getPublishQueue,
+  publishJobId,
+  PUBLISH_QUEUE,
+  PUBLISH_JOB_OPTIONS,
+  RECONCILE_QUEUE,
+  removePublishJob,
+  setPublishQueueOverride,
+  TOKEN_HEALTH_QUEUE,
+} from './queue/publish-queue';
+export type { EnqueuePublishInput, PublishJobData } from './queue/publish-queue';
+export { classifyGraphError, isRetryable, usageFromHeaders } from './social/facebook/errors';
+export type { ClassifiedFailure, FailureClass } from './social/facebook/errors';
+export { GraphError, graphRequest } from './social/facebook/client';
+export { permalinkFor, publishToPage, renderMessage } from './social/facebook/publish';
+export type { PublishInput, PublishResult } from './social/facebook/publish';
+export {
+  buildAuthorizeUrl,
+  debugToken,
+  listManagedPages,
+  OPTIONAL_SCOPES,
+  REQUIRED_SCOPES,
+  revokePermissions,
+} from './social/facebook/oauth';
+export type { ManagedPage, TokenHealth } from './social/facebook/oauth';
+export { deletionConfirmationCode, parseSignedRequest } from './social/facebook/signed-request';
+export type { SignedRequestPayload } from './social/facebook/signed-request';
+export { handleDataDeletion, handleDeauthorize } from './services/meta-webhooks';
+export type { DeletionResult, DisconnectResult } from './services/meta-webhooks';
