@@ -100,7 +100,9 @@ export const POST = route(
 | POST                 | `/api/v1/posts/:id/regenerate`                    | `{ instruction? }` → new revision (sync, single post)       |
 | POST                 | `/api/v1/posts/:id/revisions/:revId/restore`      | Undo                                                        |
 | POST                 | `/api/v1/posts/:id/validate`                      | Platform validation for the composer                        |
-| POST                 | `/api/v1/ai/generate`                             | Single/small batch (≤ 5) sync generation → drafts           |
+
+**Changes made during implementation (Phase 7).** `GET /api/v1/posts` answers with a page — `{ posts, nextCursor, total }` — so the content list and the calendar can share one endpoint. `/posts/:id/validate` was not built: `validatePost` is a pure module the browser imports from `@dpost/core/content`, so the composer checks as you type without a round trip, and the server runs the same function on every write. `/posts/bulk` takes `approve`, `delete` and `restore` (the undo behind the toast).
+| POST | `/api/v1/ai/generate` | Single/small batch (≤ 5) sync generation → drafts |
 
 ### Plans
 

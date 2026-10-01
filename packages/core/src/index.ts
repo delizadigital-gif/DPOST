@@ -131,5 +131,56 @@ export type {
   ValidationIssue,
   ValidationResult,
 } from './social/facebook/validate';
-export { createPost, getPost, listRecentPosts, updatePost } from './services/posts';
-export type { CreatePostInput, PostSummary, UpdatePostInput } from './services/posts';
+export {
+  approvePost,
+  approvePosts,
+  countPostsByStatus,
+  createPost,
+  deletePost,
+  deletePosts,
+  duplicatePost,
+  getPost,
+  listPosts,
+  listPostsInRange,
+  listRevisions,
+  MAX_BULK_POSTS,
+  restorePost,
+  restorePosts,
+  restoreRevision,
+  updatePost,
+} from './services/posts';
+export type {
+  BulkResult,
+  CreatePostInput,
+  ListPostsFilters,
+  PostPage,
+  PostSummary,
+  RevisionSummary,
+  UpdatePostInput,
+} from './services/posts';
+export {
+  allowedTransitions,
+  assertTransition,
+  canTransition,
+  displayStatus,
+  isEditable,
+  POST_STATUSES,
+  statusAfterEdit,
+  StatusTransitionError,
+} from './content/status';
+export type { DisplayStatus } from './content/status';
+export {
+  addLocalDays,
+  calendarRange,
+  dayOfWeek,
+  groupByLocalDay,
+  localDayKey,
+  localTimeLabel,
+  shiftAnchor,
+  startOfLocalDay,
+  todayKey,
+  zonedTimeToUtc,
+} from './content/calendar';
+export type { CalendarRange, CalendarView, DayKey, RangeOptions } from './content/calendar';
+export { regeneratePost } from './services/post-ai';
+export type { RegeneratePostResult } from './services/post-ai';

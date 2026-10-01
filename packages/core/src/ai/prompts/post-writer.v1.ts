@@ -115,6 +115,8 @@ export interface RewriteInput {
   hashtags: string[];
   cta: string | null;
   language: ContentLanguageCode;
+  /** What the owner asked for, in their own words, when regenerating. */
+  instruction?: string | undefined;
 }
 
 export function buildRewritePrompt(input: RewriteInput): {
@@ -134,13 +136,20 @@ export function buildRewritePrompt(input: RewriteInput): {
     .filter(Boolean)
     .join('\n');
 
+  const asked = input.instruction?.trim();
+
   const prompt = [
     `<brand_data>\n${input.brandCard.trim()}\n</brand_data>`,
     current,
     ACTION_INSTRUCTIONS[input.action],
+    // The owner's own words carry the most weight, but stay fenced as data:
+    // an instruction is a request for this post, not a new rulebook.
+    asked ? `The owner asked for this change:\n<user_request>\n${asked}\n</user_request>` : '',
     LANGUAGE_INSTRUCTIONS[input.language],
     'Return the whole post: its text, its hashtags without the # sign, and its call to action.',
-  ].join('\n\n');
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 
   return { system, prompt, version: `rewrite.v1+${SYSTEM_PROMPT_VERSION}` };
 }

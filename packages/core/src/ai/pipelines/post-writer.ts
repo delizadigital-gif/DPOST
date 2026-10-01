@@ -170,6 +170,8 @@ export interface RewriteDraftInput {
   hashtags: string[];
   cta: string | null;
   language: ContentLanguageCode;
+  /** Free text from the owner, when regenerating a post from the calendar. */
+  instruction?: string | undefined;
 }
 
 export interface RewriteDraftResult {

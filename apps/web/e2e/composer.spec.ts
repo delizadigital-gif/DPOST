@@ -36,8 +36,10 @@ test('write a post by hand and save it as a draft', async ({ page }) => {
 
   const posts = await page.request.get('/api/v1/posts');
   expect(posts.ok()).toBe(true);
-  const body = (await posts.json()) as { body: string; hashtags: string[] }[];
-  expect(body[0]).toMatchObject({
+  // The list endpoint answers with a page, so the calendar and the content
+  // list can share it: { posts, nextCursor, total }.
+  const result = (await posts.json()) as { posts: { body: string; hashtags: string[] }[] };
+  expect(result.posts[0]).toMatchObject({
     body: 'Fresh batch out of the kitchen this morning.',
     hashtags: ['homemade'],
   });
@@ -62,9 +64,9 @@ test('generate drafts, pick one, edit it and save it', async ({ page }) => {
   await expect(page.getByText('Draft saved')).toBeVisible();
 
   const posts = await page.request.get('/api/v1/posts');
-  const body = (await posts.json()) as { body: string; source: string }[];
-  expect(body[0]?.body).toContain('Our own words');
-  expect(body[0]?.source).toBe('ai_single');
+  const result = (await posts.json()) as { posts: { body: string; source: string }[] };
+  expect(result.posts[0]?.body).toContain('Our own words');
+  expect(result.posts[0]?.source).toBe('ai_single');
 });
 
 test('the allowance goes down as posts are written', async ({ page }) => {

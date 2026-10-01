@@ -185,6 +185,18 @@ P17                                                                  ▓▓▓ �
 - **Testing:** status machine unit tests (every allowed/forbidden transition); calendar range queries with timezone edge cases (a post at 23:30 Dhaka appears on the correct local day); isolation tests; E2E: generate → approve → see it on the calendar.
 - **Done when:** a user can manage 100+ posts comfortably, with calendar render under 300 ms for a month.
 
+> **Status (2026-10-02): done and verified locally.** 392 unit and integration tests and 96 end-to-end tests at three screen sizes, the end-to-end suite run against the production build as CI does.
+>
+> - **The status machine is one module** (`content/status.ts`) and every transition goes through it, so no screen or AI tool can invent a path. Editing an approved post withdraws the approval, because approval was of a particular text.
+> - **Nothing is destroyed.** Every edit snapshots the previous version first, in the same transaction, so undo always has something to return to; deleting sets `deletedAt` and the toast's Undo restores the same post with its history, not a copy.
+> - **Days are the workspace's days.** A post at 23:30 in Dhaka is 17:30 UTC, and one at 03:00 the next morning is 21:00 UTC the day before — both land on the right local day. The grouping happens on the server, where the workspace timezone lives, and the tests cover a zone with daylight saving as well as Dhaka's fixed offset.
+> - **Bulk actions report what they skipped**: "38 approved, 2 were archived" rather than a claim that everything worked.
+> - **Which period the calendar shows lives in the URL**, so a particular week is a link that can be sent to someone.
+> - **Regenerating is just another edit** with a machine holding the pen: same metering, same quality gate, same revision history, and an approved post drops back to review.
+> - **Measured with 120 posts in one month** on the production build: month view ~240 ms, week ~228 ms, content list ~225 ms, as full request time (session, queries and HTML) on the development machine with Postgres in Docker — not a laboratory figure, and comfortably inside the 300 ms target.
+> - `GET /api/v1/posts` now answers with a page (`{ posts, nextCursor, total }`) rather than an array, which the Phase 6 composer tests were updated for.
+> - Giving a post a date is possible from the API, but the composer has no date picker yet: there is nowhere to publish until Phase 8, and a date that does nothing would be a promise the product can't keep.
+
 ## Phase 8 — Facebook connection, queue & publishing: the CORE LOOP (~8 days)
 
 **Goal:** approved posts publish to a real Facebook Page on time, reliably.
