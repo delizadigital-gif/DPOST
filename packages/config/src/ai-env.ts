@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EnvValidationError } from './env';
+import { isPublicDeployment } from './local';
 
 /**
  * Settings for the AI features.
@@ -49,7 +50,7 @@ export const aiEnvSchema = z
      * point: `NODE_ENV` says how the code was built, and the address says
      * who can reach it.
      */
-    if (env.AI_PROVIDER === 'stub' && env.NODE_ENV === 'production' && !isLocal(env.APP_URL)) {
+    if (env.AI_PROVIDER === 'stub' && isPublicDeployment(env.NODE_ENV, env.APP_URL)) {
       ctx.addIssue({
         code: 'custom',
         path: ['AI_PROVIDER'],
@@ -57,17 +58,6 @@ export const aiEnvSchema = z
       });
     }
   });
-
-const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '0.0.0.0']);
-
-function isLocal(appUrl: string | undefined): boolean {
-  if (!appUrl) return false;
-  try {
-    return LOCAL_HOSTS.has(new URL(appUrl).hostname.replace(/^\[|\]$/gu, ''));
-  } catch {
-    return false;
-  }
-}
 
 export type AiEnv = z.infer<typeof aiEnvSchema>;
 

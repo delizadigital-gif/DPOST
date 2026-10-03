@@ -4,6 +4,7 @@ import { AppError } from '../lib/errors';
 import { GraphError } from '../social/facebook/client';
 import { isRetryable, type ClassifiedFailure } from '../social/facebook/errors';
 import { publishToPage } from '../social/facebook/publish';
+import { getStorage } from '../storage';
 import { decryptChannelToken, markChannelNeedsReconnect } from './channels';
 import { notify } from './notifications';
 import { recordAudit } from './audit';
@@ -65,7 +66,19 @@ export async function runPublication(input: RunPublicationInput): Promise<Publis
       attemptCount: true,
       postId: true,
       channelId: true,
-      post: { select: { body: true, hashtags: true, link: true, createdById: true, status: true } },
+      post: {
+        select: {
+          body: true,
+          hashtags: true,
+          link: true,
+          createdById: true,
+          status: true,
+          media: {
+            orderBy: { position: 'asc' },
+            select: { media: { select: { storageKey: true, status: true } } },
+          },
+        },
+      },
       channel: { select: { externalId: true, name: true, status: true, isActive: true } },
     },
   });
@@ -156,12 +169,22 @@ export async function runPublication(input: RunPublicationInput): Promise<Publis
 
   try {
     const token = await decryptChannelToken(ctx, publication.channelId);
+
+    // Facebook fetches each image from its public address, so the storage
+    // driver's URL is what goes out — not the bytes.
+    const storage = getStorage();
+    const imageUrls = publication.post.media
+      .map((entry) => entry.media)
+      .filter((media) => media.status === 'ready' && media.storageKey)
+      .map((media) => storage.publicUrl(media.storageKey!));
+
     const result = await publishToPage({
       pageId: publication.channel.externalId,
       pageToken: token,
       body: publication.post.body,
       hashtags: publication.post.hashtags,
       link: publication.post.link,
+      ...(imageUrls.length ? { imageUrls } : {}),
       ...(input.fetchImpl ? { fetchImpl: input.fetchImpl } : {}),
     });
 

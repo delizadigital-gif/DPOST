@@ -531,3 +531,46 @@ describe('scheduling to a Page that is not there', () => {
     ).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 });
+
+describe('publishing with an image', () => {
+  it('sends the image to Facebook by its public address', async () => {
+    const { createMemoryStorage, setStorageProvider } = await import('../storage');
+    const { uploadMedia, setPostMedia } = await import('./media');
+    const sharp = (await import('sharp')).default;
+
+    const storage = createMemoryStorage();
+    setStorageProvider(storage);
+    try {
+      const photo = await sharp({
+        create: { width: 400, height: 400, channels: 3, background: { r: 1, g: 2, b: 3 } },
+      })
+        .jpeg()
+        .toBuffer();
+
+      const post = await approvedPost('A post with a photo.');
+      const media = await uploadMedia(ctx, { bytes: photo, filename: 'dish.jpg' });
+      await setPostMedia(ctx, post.id, [media.id]);
+
+      const publication = await publishNow(ctx, { postId: post.id, channelId });
+      const { fetchImpl, seen } = graphResponder([
+        { status: 200, body: { id: 'photo_1', post_id: '1234567890_999' } },
+      ]);
+
+      const outcome = await runPublication({
+        publicationId: publication.id,
+        workspaceId: ctx.workspaceId,
+        jobVersion: publication.jobVersion,
+        fetchImpl,
+      });
+
+      expect(outcome.status).toBe('published');
+      // A single photo goes to the photos endpoint, not the plain feed.
+      expect(seen[0]?.url).toContain('/photos');
+
+      await getUnscopedDb().postMedia.deleteMany({ where: { workspaceId: ctx.workspaceId } });
+      await getUnscopedDb().mediaAsset.deleteMany({ where: { workspaceId: ctx.workspaceId } });
+    } finally {
+      setStorageProvider(undefined);
+    }
+  });
+});

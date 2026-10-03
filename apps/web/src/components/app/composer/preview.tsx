@@ -17,12 +17,15 @@ export function PostPreview({
   hashtags,
   cta,
   needsImage,
+  imageUrls = [],
 }: {
   pageName: string;
   body: string;
   hashtags: string[];
   cta: string | null;
   needsImage?: boolean;
+  /** Attached images, in the order they will appear. */
+  imageUrls?: string[];
 }) {
   const t = useTranslations('composer.preview');
   const text = [body.trim(), cta?.trim()].filter(Boolean).join('\n\n');
@@ -61,6 +64,22 @@ export function PostPreview({
           <p className="text-[15px] text-muted-foreground italic">{t('empty')}</p>
         )}
       </div>
+
+      {imageUrls.length > 0 ? (
+        <div
+          className={`mx-4 mb-3 grid gap-1 ${imageUrls.length > 1 ? 'grid-cols-2' : 'grid-cols-1'}`}
+        >
+          {imageUrls.slice(0, 4).map((url) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={url}
+              src={url}
+              alt=""
+              className="aspect-square w-full rounded-lg border border-border object-cover"
+            />
+          ))}
+        </div>
+      ) : null}
 
       {needsImage ? (
         <div className="mx-4 mb-3 flex items-center justify-center gap-2 rounded-xl border border-dashed border-border py-8 text-sm text-muted-foreground">

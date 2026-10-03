@@ -243,3 +243,43 @@ export { deletionConfirmationCode, parseSignedRequest } from './social/facebook/
 export type { SignedRequestPayload } from './social/facebook/signed-request';
 export { handleDataDeletion, handleDeauthorize } from './services/meta-webhooks';
 export type { DeletionResult, DisconnectResult } from './services/meta-webhooks';
+
+export {
+  createMemoryStorage,
+  getStorage,
+  mediaKey,
+  setStorageProvider,
+  workspaceOfKey,
+} from './storage';
+export type { StorageProvider, StoredObject } from './storage';
+export { ACCEPTED_TYPES, processImage, sniffImageType } from './media/process';
+export type { AcceptedType, ProcessedImage } from './media/process';
+export {
+  deleteMedia,
+  getMedia,
+  listMedia,
+  listPostMedia,
+  MAX_MEDIA_PER_POST,
+  setPostMedia,
+  updateMedia,
+  uploadMedia,
+} from './services/media';
+export type { ListMediaFilters, MediaPage, MediaSummary, UploadMediaInput } from './services/media';
+export {
+  ASPECT_SIZES,
+  createStubImageProvider,
+  getImageProvider,
+  setImageProvider,
+} from './ai/images/provider';
+export type {
+  GeneratedImage,
+  ImageAspect,
+  ImageProvider,
+  ImageRequest,
+} from './ai/images/provider';
+export { generatePostImage, writeImagePrompt } from './ai/images/pipeline';
+export type {
+  GenerateImageInput,
+  GenerateImageResult,
+  ImagePromptPlan,
+} from './ai/images/pipeline';

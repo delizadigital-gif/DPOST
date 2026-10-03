@@ -8,7 +8,6 @@
 // `railway variables` and kept with preserve().
 import {
   defineRailway,
-  github,
   postgres,
   preserve,
   project,

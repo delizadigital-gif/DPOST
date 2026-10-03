@@ -21,7 +21,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { ChipGroup } from '@/components/app/form/choice';
 import { Field } from '@/components/app/form/field';
 import { TagInput } from '@/components/app/form/tag-input';
-import { apiPost } from '@/lib/api/client';
+import { apiPost, apiPut } from '@/lib/api/client';
+import { MediaPicker } from '@/components/app/media/media-picker';
+import type { MediaItem } from '@/components/app/media/media-library';
 import { PostPreview } from './preview';
 
 /**
@@ -85,13 +87,15 @@ export function Composer({
   const [drafts, setDrafts] = useState<GeneratedDraft[]>([]);
   const [usedStub, setUsedStub] = useState(false);
   const [quota, setQuota] = useState(initialQuota);
-  const [busy, setBusy] = useState<'generate' | RewriteAction | 'save' | null>(null);
+  const [busy, setBusy] = useState<'generate' | RewriteAction | 'save' | 'image' | null>(null);
 
   const [body, setBody] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [cta, setCta] = useState('');
   const [warnings, setWarnings] = useState<GeneratedDraft['warnings']>([]);
   const [needsImage, setNeedsImage] = useState(false);
+  const [media, setMedia] = useState<MediaItem[]>([]);
+  const [imageStub, setImageStub] = useState(false);
 
   const validation = useMemo(() => validatePost({ body, hashtags }), [body, hashtags]);
   const outOfQuota = quota.remaining !== null && quota.remaining <= 0;
@@ -161,6 +165,26 @@ export function Composer({
     router.refresh();
   };
 
+  const makeImage = async () => {
+    if (!body.trim()) return;
+    setBusy('image');
+    const result = await apiPost<{
+      media: MediaItem;
+      stub: boolean;
+      quota: QuotaView;
+    }>('/api/v1/ai/image', { postBody: body, aspect: '1:1' });
+    setBusy(null);
+
+    if (!result.ok) {
+      handleApiError(result.error);
+      return;
+    }
+    setMedia((current) => [...current, result.data.media]);
+    setImageStub(result.data.stub);
+    toast.success(t('imageMade'));
+    router.refresh();
+  };
+
   const saveDraft = async () => {
     setBusy('save');
     const result = await apiPost<{ id: string }>('/api/v1/posts', {
@@ -170,6 +194,14 @@ export function Composer({
       language,
       source: drafts.length > 0 ? 'ai_single' : 'manual',
     });
+
+    // Images are attached after the post exists, because they hang off its id.
+    if (result.ok && media.length > 0) {
+      const attached = await apiPut(`/api/v1/posts/${result.data.id}/media`, {
+        mediaIds: media.map((item) => item.id),
+      });
+      if (!attached.ok) toast.error(attached.error.message);
+    }
     setBusy(null);
 
     if (!result.ok) {
@@ -380,6 +412,31 @@ export function Composer({
               )}
             </Field>
 
+            <Field label={t('mediaLabel')} hint={t('mediaHint')} optional asGroup>
+              {() => (
+                <div className="space-y-2">
+                  <MediaPicker selected={media} onChange={setMedia} />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-9"
+                    disabled={!canUseAi || !body.trim() || busy !== null}
+                    onClick={makeImage}
+                  >
+                    <Sparkles className="size-3.5 text-brand-600" aria-hidden />
+                    {busy === 'image' ? t('makingImage') : t('makeImage')}
+                  </Button>
+                  {imageStub ? (
+                    <p className="flex gap-2 rounded-lg border border-amber/40 bg-amber/10 p-2.5 text-sm">
+                      <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+                      {t('imageStubNotice')}
+                    </p>
+                  ) : null}
+                </div>
+              )}
+            </Field>
+
             <Field label={t('ctaLabel')} optional>
               {({ id, describedBy }) => (
                 <Input
@@ -441,7 +498,8 @@ export function Composer({
           body={body}
           hashtags={hashtags}
           cta={cta.trim() || null}
-          needsImage={needsImage}
+          needsImage={needsImage && media.length === 0}
+          imageUrls={media.map((item) => item.thumbUrl ?? item.url)}
         />
       </div>
     </div>

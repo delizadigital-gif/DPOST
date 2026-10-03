@@ -24,3 +24,6 @@ playwright/.cache/
 
 # Prisma client (regenerated on install)
 packages/db/src/generated/
+
+# Local media storage (development only)
+.media/

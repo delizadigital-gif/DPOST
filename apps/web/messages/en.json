@@ -443,7 +443,13 @@
       "like": "Like",
       "comment": "Comment",
       "share": "Share"
-    }
+    },
+    "mediaLabel": "Images",
+    "mediaHint": "Facebook shows the image instead of a link preview.",
+    "makeImage": "Make an image",
+    "makingImage": "Making an image…",
+    "imageMade": "Image added to your library",
+    "imageStubNotice": "Test mode: that is a placeholder, not a generated image. Image generation needs a provider, which is not set up yet."
   },
   "status": {
     "draft": "Draft",
@@ -590,5 +596,43 @@
       "failed": "Failed",
       "cancelled": "Cancelled"
     }
+  },
+  "media": {
+    "searchLabel": "Search images",
+    "searchPlaceholder": "Search by name, description or prompt…",
+    "filterLabel": "Filter images",
+    "filters": {
+      "all": "All",
+      "upload": "Uploaded",
+      "ai": "AI"
+    },
+    "upload": "Upload",
+    "uploading": "Uploading…",
+    "uploaded": "{name} uploaded",
+    "uploadFailed": "Couldn't upload {name}",
+    "count": "{count, plural, =0 {No images} =1 {1 image} other {# images}}",
+    "empty": "No images yet. Upload a photo and it will be ready to attach to a post.",
+    "noMatches": "Nothing matches that.",
+    "loadMore": "Show more",
+    "loading": "Loading…",
+    "untitled": "Image",
+    "aiBadge": "AI",
+    "promptLabel": "Prompt:",
+    "altLabel": "Describe this image",
+    "altPlaceholder": "A plate of kacchi biryani on a wooden table",
+    "altHint": "Used by screen readers, and by the AI when it writes about this image. Worth a few seconds.",
+    "altSaved": "Description saved",
+    "delete": "Delete image",
+    "deleted": "Image deleted",
+    "addImages": "Add images",
+    "changeImages": "Change images",
+    "removeImage": "Remove this image",
+    "pickTitle": "Choose images",
+    "pickBody": "Up to {max} on one Facebook post. Tap to select, tap again to remove.",
+    "done": "{count, plural, =0 {Done} =1 {Use 1 image} other {Use # images}}",
+    "tooMany": "Facebook takes at most {max} photos on one post.",
+    "localStorageNotice": "Images are stored on this machine while in development. A deployed DPOST needs object storage, which is set up with the S3 settings — Facebook has to be able to download each image to publish it.",
+    "chooseFiles": "Choose images to upload",
+    "gridLabel": "Images"
   }
 }

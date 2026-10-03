@@ -6,3 +6,6 @@ export { aiEnvSchema, getAiEnv, isAiConfigured, parseAiEnv } from './ai-env';
 export type { AiEnv } from './ai-env';
 export { getMetaEnv, isMetaConfigured, metaEnvSchema, parseMetaEnv } from './meta-env';
 export type { MetaEnv } from './meta-env';
+export { getStorageEnv, parseStorageEnv, storageEnvSchema } from './storage-env';
+export type { StorageEnv } from './storage-env';
+export { isLocalAppUrl, isPublicDeployment } from './local';

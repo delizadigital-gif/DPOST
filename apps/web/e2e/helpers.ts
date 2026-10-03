@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { Page } from '@playwright/test';
+import { expect, type Page } from '@playwright/test';
 
 /**
  * Creates a fresh account and signs the browser in, so each test starts from
@@ -33,6 +33,15 @@ export async function signOut(page: Page, { desktop }: { desktop: boolean }) {
  */
 export async function skipOnboarding(page: Page) {
   await page.goto('/welcome');
-  await page.getByRole('button', { name: 'Skip setup' }).click();
-  await page.waitForURL(/\/home$/);
+  const skip = page.getByRole('button', { name: 'Skip setup' });
+  await skip.waitFor({ state: 'visible' });
+
+  // The click does nothing until React has attached its handler. Under
+  // parallel load that can take a moment, and a click that lands first is
+  // simply ignored — so retry, rather than waiting on a page that is never
+  // going to navigate.
+  await expect(async () => {
+    await skip.click();
+    await page.waitForURL(/\/home$/, { timeout: 4_000 });
+  }).toPass({ timeout: 40_000 });
 }

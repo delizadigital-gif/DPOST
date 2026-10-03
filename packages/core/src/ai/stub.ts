@@ -88,6 +88,16 @@ function stubResponse(rawPrompt: string) {
     };
   }
 
+  // An image brief asks for a different shape entirely.
+  if (prompt.includes('image brief') || prompt.includes('<post>')) {
+    return {
+      prompt:
+        'A plate of home-cooked food on a wooden table by a window, warm afternoon light, shot from just above.',
+      negativePrompt: 'text, letters, logos, watermarks, blur',
+      altText: 'A plate of home-cooked food on a wooden table',
+    };
+  }
+
   const count = Math.min(countFromPrompt(prompt), bodies.length);
   return {
     posts: Array.from({ length: count }, (_, index) => ({

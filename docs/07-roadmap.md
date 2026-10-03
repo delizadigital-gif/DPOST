@@ -239,6 +239,24 @@ P17                                                                  ▓▓▓ �
 - **Testing:** file type spoofing (PNG header on an .exe → rejected); oversize → rejected; cross-tenant key access denied; overlay renders Bengali conjuncts correctly (golden image snapshot); publish post with image on the test Page.
 - **Done when:** "Generate image" produces a usable 1:1 image with a correct Bangla headline overlay, attaches it, and it publishes.
 
+> **Status (2026-10-04): the library is done; image generation is a stub and the text overlay is not built.** 503 unit and integration tests and 135 end-to-end tests, the end-to-end suite run against the production build.
+>
+> **Done and verified**
+>
+> - **Uploads are treated as hostile.** What a file _is_ comes from its first bytes, not its name or the type the browser claims — a renamed executable is refused. Everything is then re-encoded from the decoded pixels, which both defeats a file crafted for someone else's image parser and strips EXIF, so holiday photos stop carrying their GPS coordinates into a public post.
+> - **Storage is one small interface**, with a local-disk driver for development and an S3-compatible one (R2, B2, AWS) for a deployment. The local driver is refused on a deployed site — the disk is wiped on deploy and Facebook could not reach it anyway.
+> - **Every key starts with the workspace that owns it**, the serving route checks it against the session, and a cross-workspace fetch answers 404 rather than confirming the file exists.
+> - **Deleting an image refuses to break a post that is already on its way out**: a scheduled or published post holds its images, because Facebook fetches them from us at publish time.
+> - The library, the picker in the composer, attaching images to a post, and publishing a post with one photo or several — all tested.
+>
+> **Not done, and why**
+>
+> - **Image generation produces a labelled placeholder, not a picture.** The whole path is real and tested — the `fast` model writes the brief, the provider makes the file, it is processed, stored, attached and published — but no image provider is configured, because that needs an API key and costs money per image. Everything the stub makes says so in the interface.
+> - **The Bangla text overlay is not built.** It was the riskiest piece (vendored fonts, golden-image tests) and it is only worth building once a real image provider exists to put text _on_. The reason for doing it ourselves still stands: image models garble Bengali script, so the prompt writer forbids text in the image and the wording is meant to be composited afterwards.
+> - **No `ai-image` queue.** Generating one image takes a few seconds, so it runs in the request like the composer does. A queue earns its place when a content plan asks for ninety images at once (Phase 10).
+>
+> **Also:** pnpm's binary is blocked by a Device Guard policy on the development machine, so dependencies were installed with npm and the lockfile regenerated inside Docker. See the note in the README.
+
 ## Phase 10 — Content plans (~5 days)
 
 - **Features:** plan wizard UI (brief, date range, frequency, types, language, campaign, CTA); Stage A strategy + editable strategy card; Stage B slot allocator; Stage C batched writer with avoid lists; Stage D quality gate + repairs; `ai-plan` queue with progress in `async_tasks`; plan page (posts grouped by week); "Approve & schedule all" with per-slot times; local events data file (BD first); frequency guardrail note.
